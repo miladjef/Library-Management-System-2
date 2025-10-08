@@ -1,0 +1,174 @@
+# .htaccess - تنظیمات Apache
+
+# ========================
+# فعال‌سازی Rewrite Engine
+# ========================
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /library/
+    
+    # فورس HTTPS (در صورت نیاز فعال کنید)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST%}/$1 [R=301,L]
+    
+    # حذف www (در صورت نیاز)
+    # RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+    # RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+    
+    # حذف پسوند .php از URL
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME}\.php -f
+    RewriteRule ^(.*)$ $1.php [L]
+    
+    # مسیریابی برای صفحات کتاب
+    RewriteRule ^book/([0-9]+)$ book-details.php?id=$1 [L,QSA]
+    RewriteRule ^category/([0-9]+)$ books.php?cat=$1 [L,QSA]
+    
+    # صفحه 404 سفارشی
+    ErrorDocument 404 /library/404.php
+    ErrorDocument 403 /library/403.php
+    ErrorDocument 500 /library/500.php
+</IfModule>
+
+# ========================
+# امنیت
+# ========================
+
+# غیرفعال کردن لیست دایرکتوری‌ها
+Options -Indexes
+
+# محافظت از فایل‌های حساس
+<FilesMatch "^(config\.php|\.env|composer\.(json|lock)|package\.json)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# محافظت از فایل‌های لاگ
+<FilesMatch "\.(log|sql|txt)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# جلوگیری از اجرای PHP در پوشه آپلود
+<Directory "uploads">
+    php_flag engine off
+    Options -ExecCGI
+    AddType text/plain .php .php3 .php4 .php5 .phtml
+</Directory>
+
+# محافظت از فایل .htaccess
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# غیرفعال کردن اجرای اسکریپت در دایرکتوری‌های خاص
+<DirectoryMatch "^/.*/\.(git|svn|cache|logs|backups)/">
+    Order allow,deny
+    Deny from all
+</DirectoryMatch>
+
+# ========================
+# فشرده‌سازی
+# ========================
+<IfModule mod_deflate.c>
+    # فشرده‌سازی HTML, CSS, JavaScript, Text, XML
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript
+    AddOutputFilterByType DEFLATE application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript
+    
+    # استثنا برای مرورگرهای قدیمی
+    BrowserMatch ^Mozilla/4 gzip-only-text/html
+    BrowserMatch ^Mozilla/4\.0[678] no-gzip
+    BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+</IfModule>
+
+# ========================
+# کش مرورگر
+# ========================
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # تصاویر
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    
+    # فونت‌ها
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    
+    # CSS و JavaScript
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/x-javascript "access plus 1 month"
+    
+    # HTML
+    ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# ========================
+# امنیت Headers
+# ========================
+<IfModule mod_headers.c>
+    # X-Frame-Options
+    Header always set X-Frame-Options "SAMEORIGIN"
+    
+    # X-Content-Type-Options
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # X-XSS-Protection
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Referrer Policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Content Security Policy (در صورت نیاز فعال کنید)
+    # Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+    
+    # حذف اطلاعات نسخه سرور
+    Header unset X-Powered-By
+    Header always unset X-Powered-By
+    
+    # CORS (در صورت نیاز)
+    # Header always set Access-Control-Allow-Origin "*"
+</IfModule>
+
+# ========================
+# محدودیت حجم آپلود
+# ========================
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value max_execution_time 300
+php_value max_input_time 300
+
+# ========================
+# تنظیمات PHP
+# ========================
+php_flag display_errors Off
+php_flag log_errors On
+php_value error_log logs/error.log
+
+# ========================
+# جلوگیری از Hotlinking تصاویر
+# ========================
+<IfModule mod_rewrite.c>
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?yourdomain.com [NC]
+    RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?google.com [NC]
+    RewriteRule \.(jpg|jpeg|png|gif|webp)$ - [F,NC]
+</IfModule>
+
+# ========================
+# صفحات خطا
+# ========================
+ErrorDocument 400 /library/error.php?code=400
+ErrorDocument 401 /library/error.php?code=401
+ErrorDocument 403 /library/error.php?code=403
+ErrorDocument 404 /library/error.php?code=404
+ErrorDocument 500 /library/error.php?code=500
