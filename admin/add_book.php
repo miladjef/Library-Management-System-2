@@ -11,7 +11,10 @@ $title = 'افزودن کتاب جدید';
 
 // پردازش فرم
 if (isset($_POST['add_book'])) {
-    if (add_book()) {
+    // بررسی CSRF Token
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
+        $error_message = 'توکن امنیتی نامعتبر است';
+    } elseif (add_book()) {
         $success_message = 'کتاب با موفقیت اضافه شد';
     } else {
         $error_message = 'خطا در افزودن کتاب';
@@ -27,14 +30,14 @@ $api_data = [];
 
 if ($from_api) {
     $api_data = [
-        'isbn' => $_GET['isbn'] ?? '',
-        'title' => $_GET['title'] ?? '',
-        'author' => $_GET['author'] ?? '',
-        'publisher' => $_GET['publisher'] ?? '',
-        'year' => $_GET['year'] ?? '',
-        'pages' => $_GET['pages'] ?? '',
-        'language' => $_GET['language'] ?? 'فارسی',
-        'description' => $_GET['description'] ?? ''
+        'isbn' => htmlspecialchars($_GET['isbn'] ?? '', ENT_QUOTES, 'UTF-8'),
+        'title' => htmlspecialchars($_GET['title'] ?? '', ENT_QUOTES, 'UTF-8'),
+        'author' => htmlspecialchars($_GET['author'] ?? '', ENT_QUOTES, 'UTF-8'),
+        'publisher' => htmlspecialchars($_GET['publisher'] ?? '', ENT_QUOTES, 'UTF-8'),
+        'year' => htmlspecialchars($_GET['year'] ?? '', ENT_QUOTES, 'UTF-8'),
+        'pages' => htmlspecialchars($_GET['pages'] ?? '', ENT_QUOTES, 'UTF-8'),
+        'language' => htmlspecialchars($_GET['language'] ?? 'فارسی', ENT_QUOTES, 'UTF-8'),
+        'description' => htmlspecialchars($_GET['description'] ?? '', ENT_QUOTES, 'UTF-8')
     ];
 }
 
@@ -183,6 +186,7 @@ textarea.form-control {
         <?php endif; ?>
 
         <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 
             <div class="form-row">
                 <div class="form-group">
@@ -262,7 +266,7 @@ textarea.form-control {
                     <select name="category" id="category" class="form-control" required>
                         <option value="">انتخاب کنید...</option>
                         <?php foreach ($cats as $cat): ?>
-                            <option value="<?php echo htmlspecialchars($cat['cat_id'], ENT_QUOTES, 'UTF-8') ?>">
+                            <option value="<?php echo (int)$cat['cat_id'] ?>">
                                 <?php echo htmlspecialchars($cat['cat_name'], ENT_QUOTES, 'UTF-8') ?>
                             </option>
                         <?php endforeach; ?>
@@ -323,13 +327,13 @@ function searchByISBN() {
     resultsDiv.innerHTML = '<p style="text-align: center;">در حال جستجو...</p>';
     resultsDiv.style.display = 'block';
 
-    fetch(`<?php echo siteurl() ?>/admin/api/national_library_api.php?action=search_isbn&isbn=${encodeURIComponent(isbn)}`)
+    fetch(`<?php echo htmlspecialchars(siteurl(), ENT_QUOTES, 'UTF-8') ?>/admin/api/national_library_api.php?action=search_isbn&isbn=${encodeURIComponent(isbn)}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 displaySearchResults([data.data]);
             } else {
-                resultsDiv.innerHTML = `<p style="text-align: center; color: #f44336;">${data.message}</p>`;
+                resultsDiv.innerHTML = `<p style="text-align: center; color: #f44336;">${escapeHtml(data.message)}</p>`;
             }
         })
         .catch(error => {
@@ -376,7 +380,7 @@ function fillForm(book) {
 
 // دانلود تصویر جلد
 function downloadCover(isbn) {
-    fetch(`<?php echo siteurl() ?>/admin/api/national_library_api.php?action=download_cover&isbn=${encodeURIComponent(isbn)}`)
+    fetch(`<?php echo htmlspecialchars(siteurl(), ENT_QUOTES, 'UTF-8') ?>/admin/api/national_library_api.php?action=download_cover&isbn=${encodeURIComponent(isbn)}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
