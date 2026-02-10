@@ -18,11 +18,11 @@ $ticket = new Ticket($db);
 
 $member_id = $_SESSION['userid'];
 
-// دریافت اطلاعات تیکت
-$ticket_info = $ticket->getById($ticket_id);
+// دریافت اطلاعات تیکت با بررسی مالکیت
+$ticket_info = $ticket->getByIdAndUserId($ticket_id, $member_id);
 
-// بررسی مالکیت تیکت
-if (!$ticket_info || $ticket_info['mid'] != $member_id) {
+// بررسی وجود تیکت
+if (!$ticket_info) {
     header('Location: tickets.php');
     exit;
 }
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_reply'])) {
         if ($result['success']) {
             $success = 'پاسخ شما ثبت شد';
             // بارگذاری مجدد اطلاعات
-            $ticket_info = $ticket->getById($ticket_id);
+            $ticket_info = $ticket->getByIdAndUserId($ticket_id, $member_id);
         } else {
             $error = $result['message'];
         }
@@ -59,32 +59,32 @@ if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// دریافت پاسخ‌های تیکت
-$replies = $ticket->getReplies($ticket_id);
+// دریافت پاسخ‌های تیکت با بررسی مالکیت
+$replies = $ticket->getRepliesByTicketIdAndUserId($ticket_id, $member_id);
 ?>
 
 <div class="container">
     <div class="ticket-view-page">
         <!-- Breadcrumb -->
         <nav class="breadcrumb">
-            <a href="<?php echo  siteurl() ?>">خانه</a>
+            <a href="<?php echo siteurl() ?>">خانه</a>
             <i class="fas fa-chevron-left"></i>
             <a href="tickets.php">تیکت‌ها</a>
             <i class="fas fa-chevron-left"></i>
-            <span>تیکت #<?php echo  $ticket_info['ticket_id'] ?></span>
+            <span>تیکت #<?php echo htmlspecialchars($ticket_info['ticket_id'], ENT_QUOTES, 'UTF-8') ?></span>
         </nav>
 
         <?php if (isset($success)): ?>
             <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
-                <?php echo  htmlspecialchars($success) ?>
+                <?php echo htmlspecialchars($success, ENT_QUOTES, 'UTF-8') ?>
             </div>
         <?php endif; ?>
 
         <?php if (isset($error)): ?>
             <div class="alert alert-error">
                 <i class="fas fa-exclamation-triangle"></i>
-                <?php echo  htmlspecialchars($error) ?>
+                <?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
             </div>
         <?php endif; ?>
 
@@ -92,20 +92,20 @@ $replies = $ticket->getReplies($ticket_id);
         <div class="ticket-details">
             <div class="ticket-header-section">
                 <div class="ticket-title-section">
-                    <h1><?php echo  htmlspecialchars($ticket_info['title']) ?></h1>
+                    <h1><?php echo htmlspecialchars($ticket_info['title'], ENT_QUOTES, 'UTF-8') ?></h1>
                     <div class="ticket-meta-info">
                         <span class="meta-item">
                             <i class="fas fa-hashtag"></i>
-                            شماره تیکت: <?php echo  $ticket_info['ticket_id'] ?>
+                            شماره تیکت: <?php echo htmlspecialchars($ticket_info['ticket_id'], ENT_QUOTES, 'UTF-8') ?>
                         </span>
                         <span class="meta-item">
                             <i class="fas fa-calendar"></i>
-                            ایجاد شده: <?php echo  jdate('Y/m/d H:i', strtotime($ticket_info['created_at'])) ?>
+                            ایجاد شده: <?php echo jdate('Y/m/d H:i', strtotime($ticket_info['created_at'])) ?>
                         </span>
                         <?php if ($ticket_info['updated_at']): ?>
                             <span class="meta-item">
                                 <i class="fas fa-clock"></i>
-                                آخرین به‌روزرسانی: <?php echo  jdate('Y/m/d H:i', strtotime($ticket_info['updated_at'])) ?>
+                                آخرین به‌روزرسانی: <?php echo jdate('Y/m/d H:i', strtotime($ticket_info['updated_at'])) ?>
                             </span>
                         <?php endif; ?>
                     </div>
@@ -126,8 +126,8 @@ $replies = $ticket->getReplies($ticket_id);
                     $status_class = $status_classes[$ticket_info['status']] ?? 'badge-secondary';
                     $status_label = $status_labels[$ticket_info['status']] ?? $ticket_info['status'];
                     ?>
-                    <span class="badge badge-large <?php echo  $status_class ?>">
-                        <?php echo  $status_label ?>
+                    <span class="badge badge-large <?php echo htmlspecialchars($status_class, ENT_QUOTES, 'UTF-8') ?>">
+                        <?php echo htmlspecialchars($status_label, ENT_QUOTES, 'UTF-8') ?>
                     </span>
 
                     <?php
@@ -144,8 +144,8 @@ $replies = $ticket->getReplies($ticket_id);
                     $priority_class = $priority_classes[$ticket_info['priority']] ?? 'badge-secondary';
                     $priority_label = $priority_labels[$ticket_info['priority']] ?? $ticket_info['priority'];
                     ?>
-                    <span class="badge badge-large <?php echo  $priority_class ?>">
-                        اولویت: <?php echo  $priority_label ?>
+                    <span class="badge badge-large <?php echo htmlspecialchars($priority_class, ENT_QUOTES, 'UTF-8') ?>">
+                        اولویت: <?php echo htmlspecialchars($priority_label, ENT_QUOTES, 'UTF-8') ?>
                     </span>
                 </div>
             </div>
@@ -158,11 +158,11 @@ $replies = $ticket->getReplies($ticket_id);
                         <span class="sender-name">شما</span>
                     </div>
                     <span class="message-date">
-                        <?php echo  jdate('Y/m/d H:i', strtotime($ticket_info['created_at'])) ?>
+                        <?php echo jdate('Y/m/d H:i', strtotime($ticket_info['created_at'])) ?>
                     </span>
                 </div>
                 <div class="message-content">
-                    <?php echo  nl2br(htmlspecialchars($ticket_info['description'])) ?>
+                    <?php echo nl2br(htmlspecialchars($ticket_info['description'], ENT_QUOTES, 'UTF-8')) ?>
                 </div>
             </div>
         </div>
@@ -172,14 +172,14 @@ $replies = $ticket->getReplies($ticket_id);
             <div class="ticket-replies">
                 <h3>
                     <i class="fas fa-comments"></i>
-                    پاسخ‌ها (<?php echo  count($replies) ?>)
+                    پاسخ‌ها (<?php echo count($replies) ?>)
                 </h3>
 
                 <?php foreach ($replies as $reply): ?>
-                    <div class="ticket-message <?php echo  $reply['sender_type'] == 'admin' ? 'admin-message' : 'user-message' ?>">
+                    <div class="ticket-message <?php echo htmlspecialchars($reply['sender_type'] == 'admin' ? 'admin-message' : 'user-message', ENT_QUOTES, 'UTF-8') ?>">
                         <div class="message-header">
                             <div class="sender-info">
-                                <i class="fas <?php echo  $reply['sender_type'] == 'admin' ? 'fa-user-shield' : 'fa-user-circle' ?>"></i>
+                                <i class="fas <?php echo htmlspecialchars($reply['sender_type'] == 'admin' ? 'fa-user-shield' : 'fa-user-circle', ENT_QUOTES, 'UTF-8') ?>"></i>
                                 <span class="sender-name">
                                     <?php if ($reply['sender_type'] == 'admin'): ?>
                                         پشتیبانی کتابخانه
@@ -189,11 +189,11 @@ $replies = $ticket->getReplies($ticket_id);
                                 </span>
                             </div>
                             <span class="message-date">
-                                <?php echo  jdate('Y/m/d H:i', strtotime($reply['created_at'])) ?>
+                                <?php echo jdate('Y/m/d H:i', strtotime($reply['created_at'])) ?>
                             </span>
                         </div>
                         <div class="message-content">
-                            <?php echo  nl2br(htmlspecialchars($reply['message'])) ?>
+                            <?php echo nl2br(htmlspecialchars($reply['message'], ENT_QUOTES, 'UTF-8')) ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -209,7 +209,7 @@ $replies = $ticket->getReplies($ticket_id);
                 </h3>
 
                 <form method="POST" action="">
-                    <input type="hidden" name="csrf_token" value="<?php echo  $_SESSION['csrf_token'] ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
 
                     <div class="form-group">
                         <textarea name="message" class="form-control" rows="5"
