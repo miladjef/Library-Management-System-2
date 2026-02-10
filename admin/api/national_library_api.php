@@ -37,9 +37,16 @@ try {
         // جستجو با شابک
         case 'search_isbn':
             $isbn = sanitize_isbn($_GET['isbn'] ?? $_POST['isbn'] ?? '');
-
+            
+            // پاکسازی و اعتبارسنجی ISBN
+            $isbn_clean = preg_replace('/[-]/', '', $isbn);
+            
             if (empty($isbn)) {
                 throw new Exception('شابک وارد نشده است');
+            }
+            
+            if (strlen($isbn_clean) !== 10 && strlen($isbn_clean) !== 13) {
+                throw new Exception('فرمت شابک نامعتبر است (باید ۱۰ یا ۱۳ رقم باشد)');
             }
 
             $result = $nlService->searchByISBN($isbn);
@@ -66,9 +73,16 @@ try {
         // دانلود تصویر جلد
         case 'download_cover':
             $isbn = sanitize_isbn($_GET['isbn'] ?? $_POST['isbn'] ?? '');
-
+            
+            // پاکسازی و اعتبارسنجی ISBN
+            $isbn_clean = preg_replace('/[-]/', '', $isbn);
+            
             if (empty($isbn)) {
                 throw new Exception('شابک وارد نشده است');
+            }
+            
+            if (strlen($isbn_clean) !== 10 && strlen($isbn_clean) !== 13) {
+                throw new Exception('فرمت شابک نامعتبر است (باید ۱۰ یا ۱۳ رقم باشد)');
             }
 
             $result = $nlService->downloadCoverImage($isbn);
@@ -88,8 +102,12 @@ try {
             $stmt->execute([$book_id]);
             $book = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if (!$book || empty($book['isbn'])) {
-                throw new Exception('کتاب یافت نشد یا شابک ندارد');
+            if (!$book) {
+                throw new Exception('کتاب یافت نشد');
+            }
+
+            if (empty($book['isbn'])) {
+                throw new Exception('این کتاب شابک ندارد');
             }
 
             // جستجو در کتابخانه ملی
