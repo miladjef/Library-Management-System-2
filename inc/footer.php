@@ -35,11 +35,11 @@
             <div class="footer-section">
                 <h4>دسترسی سریع</h4>
                 <ul class="footer-links">
-                    <li><a href="<?= siteurl() ?>"><i class="fas fa-home"></i> خانه</a></li>
-                    <li><a href="<?= siteurl() ?>/books.php"><i class="fas fa-book"></i> کتاب‌ها</a></li>
-                    <li><a href="<?= siteurl() ?>/categories.php"><i class="fas fa-list"></i> دسته‌بندی‌ها</a></li>
-                    <li><a href="<?= siteurl() ?>/about.php"><i class="fas fa-info-circle"></i> درباره ما</a></li>
-                    <li><a href="<?= siteurl() ?>/contact.php"><i class="fas fa-envelope"></i> تماس با ما</a></li>
+                    <li><a href="<?php echo  siteurl() ?>"><i class="fas fa-home"></i> خانه</a></li>
+                    <li><a href="<?php echo  siteurl() ?>/books.php"><i class="fas fa-book"></i> کتاب‌ها</a></li>
+                    <li><a href="<?php echo  siteurl() ?>/categories.php"><i class="fas fa-list"></i> دسته‌بندی‌ها</a></li>
+                    <li><a href="<?php echo  siteurl() ?>/about.php"><i class="fas fa-info-circle"></i> درباره ما</a></li>
+                    <li><a href="<?php echo  siteurl() ?>/contact.php"><i class="fas fa-envelope"></i> تماس با ما</a></li>
                 </ul>
             </div>
 
@@ -48,15 +48,15 @@
                 <h4>خدمات</h4>
                 <ul class="footer-links">
                     <?php if ($user_logged_in): ?>
-                        <li><a href="<?= siteurl() ?>/profile.php"><i class="fas fa-user"></i> پروفایل من</a></li>
-                        <li><a href="<?= siteurl() ?>/my-reservations.php"><i class="fas fa-history"></i> امانت‌های من</a></li>
-                        <li><a href="<?= siteurl() ?>/tickets.php"><i class="fas fa-support"></i> پشتیبانی</a></li>
+                        <li><a href="<?php echo  siteurl() ?>/profile.php"><i class="fas fa-user"></i> پروفایل من</a></li>
+                        <li><a href="<?php echo  siteurl() ?>/my-reservations.php"><i class="fas fa-history"></i> امانت‌های من</a></li>
+                        <li><a href="<?php echo  siteurl() ?>/tickets.php"><i class="fas fa-support"></i> پشتیبانی</a></li>
                     <?php else: ?>
-                        <li><a href="<?= siteurl() ?>/login.php"><i class="fas fa-sign-in-alt"></i> ورود</a></li>
-                        <li><a href="<?= siteurl() ?>/register.php"><i class="fas fa-user-plus"></i> ثبت نام</a></li>
+                        <li><a href="<?php echo  siteurl() ?>/login.php"><i class="fas fa-sign-in-alt"></i> ورود</a></li>
+                        <li><a href="<?php echo  siteurl() ?>/register.php"><i class="fas fa-user-plus"></i> ثبت نام</a></li>
                     <?php endif; ?>
-                    <li><a href="<?= siteurl() ?>/rules.php"><i class="fas fa-gavel"></i> قوانین کتابخانه</a></li>
-                    <li><a href="<?= siteurl() ?>/faq.php"><i class="fas fa-question-circle"></i> سوالات متداول</a></li>
+                    <li><a href="<?php echo  siteurl() ?>/rules.php"><i class="fas fa-gavel"></i> قوانین کتابخانه</a></li>
+                    <li><a href="<?php echo  siteurl() ?>/faq.php"><i class="fas fa-question-circle"></i> سوالات متداول</a></li>
                 </ul>
             </div>
 
@@ -89,15 +89,15 @@
             <div class="footer-container">
                 <div class="copyright">
                     <p>
-                        © <?= jdate('Y') ?> کتابخانه مجازی. تمامی حقوق محفوظ است.
+                        © <?php echo  jdate('Y') ?> کتابخانه مجازی. تمامی حقوق محفوظ است.
                     </p>
                 </div>
                 <div class="footer-links-bottom">
-                    <a href="<?= siteurl() ?>/privacy.php">حریم خصوصی</a>
+                    <a href="<?php echo  siteurl() ?>/privacy.php">حریم خصوصی</a>
                     <span class="separator">|</span>
-                    <a href="<?= siteurl() ?>/terms.php">شرایط استفاده</a>
+                    <a href="<?php echo  siteurl() ?>/terms.php">شرایط استفاده</a>
                     <span class="separator">|</span>
-                    <a href="<?= siteurl() ?>/sitemap.php">نقشه سایت</a>
+                    <a href="<?php echo  siteurl() ?>/sitemap.php">نقشه سایت</a>
                 </div>
             </div>
         </div>
@@ -127,7 +127,7 @@
         const userDropdown = document.querySelector('.user-dropdown');
         const navToggle = document.querySelector('.nav-toggle');
         const navMenu = document.getElementById('nav-menu');
-        
+
         // بستن user menu
         if (userDropdown && !userDropdown.contains(event.target)) {
             const userMenu = document.getElementById('user-menu');
@@ -135,7 +135,7 @@
                 userMenu.classList.remove('active');
             }
         }
-        
+
         // بستن mobile menu
         if (!navToggle.contains(event.target) && !navMenu.contains(event.target)) {
             navMenu.classList.remove('active');
@@ -171,13 +171,13 @@
                 <i class="fas fa-times"></i>
             </button>
         `;
-        
+
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
             notification.classList.add('show');
         }, 100);
-        
+
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => {
@@ -192,7 +192,7 @@
             const xhr = new XMLHttpRequest();
             xhr.open(method, url);
             xhr.setRequestHeader('Content-Type', 'application/json');
-            
+
             xhr.onload = function() {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
@@ -205,11 +205,11 @@
                     reject(xhr.statusText);
                 }
             };
-            
+
             xhr.onerror = function() {
                 reject(xhr.statusText);
             };
-            
+
             if (data) {
                 xhr.send(JSON.stringify(data));
             } else {
@@ -221,7 +221,7 @@
     // Lazy Loading برای تصاویر
     document.addEventListener('DOMContentLoaded', function() {
         const lazyImages = document.querySelectorAll('img[data-src]');
-        
+
         const imageObserver = new IntersectionObserver(function(entries, observer) {
             entries.forEach(function(entry) {
                 if (entry.isIntersecting) {
@@ -232,7 +232,7 @@
                 }
             });
         });
-        
+
         lazyImages.forEach(function(img) {
             imageObserver.observe(img);
         });
@@ -241,14 +241,14 @@
 
     <?php if (isset($_SESSION['success_message'])): ?>
         <script>
-        showNotification('<?= addslashes($_SESSION['success_message']) ?>', 'success');
+        showNotification('<?php echo  addslashes($_SESSION['success_message']) ?>', 'success');
         </script>
         <?php unset($_SESSION['success_message']); ?>
     <?php endif; ?>
 
     <?php if (isset($_SESSION['error_message'])): ?>
         <script>
-        showNotification('<?= addslashes($_SESSION['error_message']) ?>', 'error');
+        showNotification('<?php echo  addslashes($_SESSION['error_message']) ?>', 'error');
         </script>
         <?php unset($_SESSION['error_message']); ?>
     <?php endif; ?>

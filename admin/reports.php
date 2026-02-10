@@ -14,16 +14,16 @@ include "inc/header.php";
         <form method="GET" action="">
             <div class="filter-group">
                 <label>از تاریخ:</label>
-                <input type="text" name="from_date" id="from_date" class="persian-datepicker" 
-                       value="<?= $_GET['from_date'] ?? '' ?>" placeholder="1404/01/01">
+                <input type="text" name="from_date" id="from_date" class="persian-datepicker"
+                       value="<?php echo  $_GET['from_date'] ?? '' ?>" placeholder="1404/01/01">
             </div>
-            
+
             <div class="filter-group">
                 <label>تا تاریخ:</label>
-                <input type="text" name="to_date" id="to_date" class="persian-datepicker" 
-                       value="<?= $_GET['to_date'] ?? '' ?>" placeholder="1404/12/29">
+                <input type="text" name="to_date" id="to_date" class="persian-datepicker"
+                       value="<?php echo  $_GET['to_date'] ?? '' ?>" placeholder="1404/12/29">
             </div>
-            
+
             <div class="filter-group">
                 <label>نوع گزارش:</label>
                 <select name="report_type">
@@ -33,7 +33,7 @@ include "inc/header.php";
                     <option value="books">کتاب‌ها</option>
                 </select>
             </div>
-            
+
             <button type="submit" class="btn-primary">نمایش گزارش</button>
             <button type="button" onclick="exportReport()" class="btn-success">خروجی Excel</button>
         </form>
@@ -44,20 +44,20 @@ include "inc/header.php";
         $report_type = $_GET['report_type'];
         $from_date = $_GET['from_date'] ?? null;
         $to_date = $_GET['to_date'] ?? null;
-        
+
         // تبدیل تاریخ شمسی به میلادی
         if ($from_date) {
             list($y, $m, $d) = explode('/', $from_date);
             $from_gregorian = jalali_to_gregorian($y, $m, $d);
             $from_date_sql = implode('-', $from_gregorian);
         }
-        
+
         if ($to_date) {
             list($y, $m, $d) = explode('/', $to_date);
             $to_gregorian = jalali_to_gregorian($y, $m, $d);
             $to_date_sql = implode('-', $to_gregorian);
         }
-        
+
         switch ($report_type) {
             case 'reservations':
                 include 'inc/reports/reservations_report.php';

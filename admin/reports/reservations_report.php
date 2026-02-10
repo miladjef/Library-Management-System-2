@@ -2,7 +2,7 @@
 // admin/inc/reports/reservations_report.php
 
 $query = "
-    SELECT 
+    SELECT
         r.rid,
         r.reservation_date,
         r.return_date,
@@ -54,23 +54,23 @@ $unpaid_penalties = array_sum(array_map(fn($r) => $r['penalty_paid'] ? 0 : $r['p
     <div class="summary-grid">
         <div class="summary-item">
             <span class="summary-label">کل امانت‌ها:</span>
-            <span class="summary-value"><?= number_format($total_reservations) ?></span>
+            <span class="summary-value"><?php echo  number_format($total_reservations) ?></span>
         </div>
         <div class="summary-item">
             <span class="summary-label">امانت‌های فعال:</span>
-            <span class="summary-value"><?= number_format($active_count) ?></span>
+            <span class="summary-value"><?php echo  number_format($active_count) ?></span>
         </div>
         <div class="summary-item">
             <span class="summary-label">برگشت داده شده:</span>
-            <span class="summary-value"><?= number_format($returned_count) ?></span>
+            <span class="summary-value"><?php echo  number_format($returned_count) ?></span>
         </div>
         <div class="summary-item">
             <span class="summary-label">کل جریمه‌ها:</span>
-            <span class="summary-value"><?= number_format($total_penalties) ?> تومان</span>
+            <span class="summary-value"><?php echo  number_format($total_penalties) ?> تومان</span>
         </div>
         <div class="summary-item">
             <span class="summary-label">جریمه‌های پرداخت نشده:</span>
-            <span class="summary-value text-danger"><?= number_format($unpaid_penalties) ?> تومان</span>
+            <span class="summary-value text-danger"><?php echo  number_format($unpaid_penalties) ?> تومان</span>
         </div>
     </div>
 </div>
@@ -95,24 +95,24 @@ $unpaid_penalties = array_sum(array_map(fn($r) => $r['penalty_paid'] ? 0 : $r['p
         <tbody>
             <?php foreach ($reservations as $r): ?>
             <tr>
-                <td><?= $r['rid'] ?></td>
-                <td><?= $r['book_name'] ?></td>
-                <td><?= $r['category_name'] ?></td>
-                <td><?= $r['name'] . ' ' . $r['surname'] ?></td>
-                <td><?= $r['national_code'] ?></td>
-                <td><?= jdate('Y/m/d', strtotime($r['reservation_date'])) ?></td>
-                <td><?= jdate('Y/m/d', strtotime($r['return_date'])) ?></td>
-                <td><?= $r['actual_return_date'] ? jdate('Y/m/d', strtotime($r['actual_return_date'])) : '-' ?></td>
+                <td><?php echo  $r['rid'] ?></td>
+                <td><?php echo  $r['book_name'] ?></td>
+                <td><?php echo  $r['category_name'] ?></td>
+                <td><?php echo  $r['name'] . ' ' . $r['surname'] ?></td>
+                <td><?php echo  $r['national_code'] ?></td>
+                <td><?php echo  jdate('Y/m/d', strtotime($r['reservation_date'])) ?></td>
+                <td><?php echo  jdate('Y/m/d', strtotime($r['return_date'])) ?></td>
+                <td><?php echo  $r['actual_return_date'] ? jdate('Y/m/d', strtotime($r['actual_return_date'])) : '-' ?></td>
                 <td>
-                    <span class="status-badge status-<?= $r['status'] ?>">
-                        <?= $r['status'] == 'active' ? 'فعال' : 'برگشت داده شده' ?>
+                    <span class="status-badge status-<?php echo  $r['status'] ?>">
+                        <?php echo  $r['status'] == 'active' ? 'فعال' : 'برگشت داده شده' ?>
                     </span>
                 </td>
-                <td><?= $r['penalty'] > 0 ? number_format($r['penalty']) . ' تومان' : '-' ?></td>
+                <td><?php echo  $r['penalty'] > 0 ? number_format($r['penalty']) . ' تومان' : '-' ?></td>
                 <td>
                     <?php if ($r['penalty'] > 0): ?>
-                        <span class="payment-status <?= $r['penalty_paid'] ? 'paid' : 'unpaid' ?>">
-                            <?= $r['penalty_paid'] ? '✓ پرداخت شده' : '✗ پرداخت نشده' ?>
+                        <span class="payment-status <?php echo  $r['penalty_paid'] ? 'paid' : 'unpaid' ?>">
+                            <?php echo  $r['penalty_paid'] ? '✓ پرداخت شده' : '✗ پرداخت نشده' ?>
                         </span>
                     <?php else: ?>
                         -

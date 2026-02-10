@@ -7,7 +7,7 @@
     <meta content="ie=edge" http-equiv="X-UA-Compatible">
     <link href="assets/css/style.css" rel="stylesheet">
     <link href="assets/css/font.css" rel="stylesheet">
-    <title><?= $title ?></title>
+    <title><?php echo  $title ?></title>
 </head>
 <body>
 
@@ -31,7 +31,7 @@
     <div class="menu">
         <ul>
             <li>
-                <a href="<?= site_url() ?>">صفحه اصلی</a>
+                <a href="<?php echo  site_url() ?>">صفحه اصلی</a>
             </li>
             <li>
                 <a href="library.php">کتابخانه</a>

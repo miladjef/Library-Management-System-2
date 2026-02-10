@@ -31,9 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_ticket'])) {
             'description' => trim($_POST['description']),
             'priority' => $_POST['priority']
         ];
-        
+
         $result = $ticket->create($data);
-        
+
         if ($result['success']) {
             $success = 'تیکت شما با موفقیت ثبت شد. شماره پیگیری: ' . $result['ticket_id'];
         } else {
@@ -67,14 +67,14 @@ $user_tickets = $ticket->getByMember($member_id);
         <?php if (isset($success)): ?>
             <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
-                <?= htmlspecialchars($success) ?>
+                <?php echo  htmlspecialchars($success) ?>
             </div>
         <?php endif; ?>
-        
+
         <?php if (isset($error)): ?>
             <div class="alert alert-error">
                 <i class="fas fa-exclamation-triangle"></i>
-                <?= htmlspecialchars($error) ?>
+                <?php echo  htmlspecialchars($error) ?>
             </div>
         <?php endif; ?>
 
@@ -89,19 +89,19 @@ $user_tickets = $ticket->getByMember($member_id);
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            
+
             <form method="POST" action="">
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                
+                <input type="hidden" name="csrf_token" value="<?php echo  $_SESSION['csrf_token'] ?>">
+
                 <div class="form-group">
                     <label for="title">
                         <i class="fas fa-heading"></i>
                         موضوع تیکت:
                     </label>
-                    <input type="text" name="title" id="title" class="form-control" 
+                    <input type="text" name="title" id="title" class="form-control"
                            placeholder="خلاصه‌ای از موضوع تیکت" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="priority">
                         <i class="fas fa-flag"></i>
@@ -113,16 +113,16 @@ $user_tickets = $ticket->getByMember($member_id);
                         <option value="high">زیاد</option>
                     </select>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="description">
                         <i class="fas fa-align-left"></i>
                         توضیحات:
                     </label>
-                    <textarea name="description" id="description" class="form-control" rows="5" 
+                    <textarea name="description" id="description" class="form-control" rows="5"
                               placeholder="لطفا مشکل یا سوال خود را با جزئیات بیان کنید..." required></textarea>
                 </div>
-                
+
                 <div class="form-actions">
                     <button type="submit" name="submit_ticket" class="btn btn-primary">
                         <i class="fas fa-paper-plane"></i>
@@ -154,20 +154,20 @@ $user_tickets = $ticket->getByMember($member_id);
                         <div class="ticket-header">
                             <div class="ticket-info">
                                 <h3 class="ticket-title">
-                                    <?= htmlspecialchars($tkt['title']) ?>
+                                    <?php echo  htmlspecialchars($tkt['title']) ?>
                                 </h3>
                                 <div class="ticket-meta">
                                     <span class="ticket-id">
                                         <i class="fas fa-hashtag"></i>
-                                        <?= $tkt['ticket_id'] ?>
+                                        <?php echo  $tkt['ticket_id'] ?>
                                     </span>
                                     <span class="ticket-date">
                                         <i class="fas fa-clock"></i>
-                                        <?= jdate('Y/m/d H:i', strtotime($tkt['created_at'])) ?>
+                                        <?php echo  jdate('Y/m/d H:i', strtotime($tkt['created_at'])) ?>
                                     </span>
                                 </div>
                             </div>
-                            
+
                             <div class="ticket-badges">
                                 <?php
                                 $status_classes = [
@@ -183,10 +183,10 @@ $user_tickets = $ticket->getByMember($member_id);
                                 $status_class = $status_classes[$tkt['status']] ?? 'badge-secondary';
                                 $status_label = $status_labels[$tkt['status']] ?? $tkt['status'];
                                 ?>
-                                <span class="badge <?= $status_class ?>">
-                                    <?= $status_label ?>
+                                <span class="badge <?php echo  $status_class ?>">
+                                    <?php echo  $status_label ?>
                                 </span>
-                                
+
                                 <?php
                                 $priority_classes = [
                                     'low' => 'badge-success',
@@ -201,28 +201,28 @@ $user_tickets = $ticket->getByMember($member_id);
                                 $priority_class = $priority_classes[$tkt['priority']] ?? 'badge-secondary';
                                 $priority_label = $priority_labels[$tkt['priority']] ?? $tkt['priority'];
                                 ?>
-                                <span class="badge <?= $priority_class ?>">
-                                    <?= $priority_label ?>
+                                <span class="badge <?php echo  $priority_class ?>">
+                                    <?php echo  $priority_label ?>
                                 </span>
                             </div>
                         </div>
-                        
+
                         <div class="ticket-description">
-                            <?= nl2br(htmlspecialchars(mb_substr($tkt['description'], 0, 200))) ?>
+                            <?php echo  nl2br(htmlspecialchars(mb_substr($tkt['description'], 0, 200))) ?>
                             <?php if (mb_strlen($tkt['description']) > 200): ?>
                                 ...
                             <?php endif; ?>
                         </div>
-                        
+
                         <div class="ticket-footer">
                             <?php if ($tkt['replies_count'] > 0): ?>
                                 <span class="replies-count">
                                     <i class="fas fa-comments"></i>
-                                    <?= $tkt['replies_count'] ?> پاسخ
+                                    <?php echo  $tkt['replies_count'] ?> پاسخ
                                 </span>
                             <?php endif; ?>
-                            
-                            <a href="ticket-view.php?id=<?= $tkt['ticket_id'] ?>" class="btn btn-outline btn-sm">
+
+                            <a href="ticket-view.php?id=<?php echo  $tkt['ticket_id'] ?>" class="btn btn-outline btn-sm">
                                 <i class="fas fa-eye"></i>
                                 مشاهده جزئیات
                             </a>

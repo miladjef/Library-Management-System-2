@@ -29,10 +29,10 @@ $book_id = (int)$_GET['id'];
 try {
     $db = Database::getInstance();
     $book = new Book($db);
-    
+
     // دریافت اطلاعات کتاب
     $bookInfo = $book->getById($book_id);
-    
+
     if (!$bookInfo) {
         echo json_encode([
             'success' => false,
@@ -40,10 +40,10 @@ try {
         ]);
         exit;
     }
-    
+
     // محاسبه موجودی قابل امانت
     $availability_stmt = $db->prepare("
-        SELECT 
+        SELECT
             b.book_quantity as total,
             COUNT(r.rid) as borrowed
         FROM books b
@@ -53,7 +53,7 @@ try {
     ");
     $availability_stmt->execute([$book_id]);
     $availability = $availability_stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     $total_quantity = $availability['total'] ?? 0;
     $borrowed_count = $availability['borrowed'] ?? 0;
     $available_quantity = $total_quantity - $borrowe

@@ -10,12 +10,12 @@
     }
     foreach ($books as $book) { ?>
         <div class="book">
-            <a href="book.php?bid=<?= $book['bid'] ?>"> <img alt="PHP book"
-                                                             src="assets/img/books/<?= $book['image'] ?>"></a>
-            <div class="book-title"><a href="book.php?bid=<?= $book['bid'] ?>"><?= $book['book_name'] ?></a></div>
+            <a href="book.php?bid=<?php echo  $book['bid'] ?>"> <img alt="PHP book"
+                                                             src="assets/img/books/<?php echo  $book['image'] ?>"></a>
+            <div class="book-title"><a href="book.php?bid=<?php echo  $book['bid'] ?>"><?php echo  $book['book_name'] ?></a></div>
             <div class="book-category">دسته بندی:
-                <a class="cat-link" href="category.php?cat_id=<?= $book['category_id'] ?>">
-                    <?= get_category_name($book['category_id']) ?>
+                <a class="cat-link" href="category.php?cat_id=<?php echo  $book['category_id'] ?>">
+                    <?php echo  get_category_name($book['category_id']) ?>
                 </a>
             </div>
             <div class="book-count">موجودی کتابخانه: <?php if ($book['count'] > 0) {
@@ -25,7 +25,7 @@
                 } ?>
             </div>
             <div class="book-buttons">
-                <a class="more-info" href="book.php?bid=<?= $book['bid'] ?>">توضیحات بیشتر </a>
+                <a class="more-info" href="book.php?bid=<?php echo  $book['bid'] ?>">توضیحات بیشتر </a>
                 <!--                <a class="borrow">درخواست امانت گرفتن</a>-->
             </div>
         </div>
@@ -35,10 +35,10 @@
     <?php
     $i = 1;
     while ($i <= book_pages()) { ?>
-        <a href="?page=<?= $i ?>">
+        <a href="?page=<?php echo  $i ?>">
             <div class="page-number <?php if (isset($_GET['page']) && $_GET['page'] == $i) {
                 echo "selected";
-            } ?>"><?= $i ?></div>
+            } ?>"><?php echo  $i ?></div>
         </a>
         <?php $i++;
     } ?>

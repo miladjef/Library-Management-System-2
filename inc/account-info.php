@@ -13,12 +13,12 @@
 
     <form action="" class="account-info-inputs" method="POST">
         <label for="name">نام:</label>
-        <input id="name" name="name" type="text" value="<?= $user['name']; ?>">
+        <input id="name" name="name" type="text" value="<?php echo  $user['name']; ?>">
         <label for="surname">نام خانوادگی:</label>
-        <input id="surname" name="surname" type="text" value="<?= $user['surname']; ?>">
+        <input id="surname" name="surname" type="text" value="<?php echo  $user['surname']; ?>">
         <label for="username">نام کاربری:</label>
-        <input type="hidden" value="<?= $user['mid'] ?>" name="mid">
-        <input id="username" name="username" type="text" value="<?= $user['username']; ?>" disabled>
+        <input type="hidden" value="<?php echo  $user['mid'] ?>" name="mid">
+        <input id="username" name="username" type="text" value="<?php echo  $user['username']; ?>" disabled>
         <label id="new-password-label" for="new-password">پسورد جدید:</label>
         <input id="new-password" name="new-password" type="password" disabled>
         <div id="change-password" onclick="newPassword()"> تغییر گذرواژه</div>

@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/includes/security.php';
+
 // admin/search_national_library.php
 
 $title = 'جستجو در کتابخانه ملی';
@@ -14,14 +16,14 @@ if (!isset($_SESSION['admin_logged_in'])) {
     <div class="page-title">
         جستجو در کتابخانه ملی ایران
     </div>
-    
+
     <div class="search-container">
         <div class="search-form">
             <h3>جستجو با شابک (ISBN)</h3>
             <form id="isbnSearchForm">
                 <label for="isbn">شابک کتاب:</label>
-                <input type="text" id="isbn" name="isbn" 
-                       placeholder="مثال: 9789648333329" 
+                <input type="text" id="isbn" name="isbn"
+                       placeholder="مثال: 9789648333329"
                        pattern="[0-9X-]{10,17}">
                 <button type="submit" class="submit">
                     <img src="assets/img/search.svg" alt="جستجو" width="20">
@@ -29,12 +31,12 @@ if (!isset($_SESSION['admin_logged_in'])) {
                 </button>
             </form>
         </div>
-        
+
         <div class="search-form">
             <h3>جستجو با عنوان</h3>
             <form id="titleSearchForm">
                 <label for="bookTitle">عنوان کتاب:</label>
-                <input type="text" id="bookTitle" name="title" 
+                <input type="text" id="bookTitle" name="title"
                        placeholder="عنوان کتاب را وارد کنید">
                 <button type="submit" class="submit">
                     <img src="assets/img/search.svg" alt="جستجو" width="20">
@@ -43,7 +45,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
             </form>
         </div>
     </div>
-    
+
     <div id="searchResults"></div>
     <div id="loadingIndicator" style="display: none;">
         <img src="assets/img/loading.gif" alt="در حال جستجو...">
@@ -134,7 +136,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
     .search-container {
         grid-template-columns: 1fr;
     }
-    
+
     .book-result {
         grid-template-columns: 1fr;
     }
@@ -159,13 +161,13 @@ document.getElementById('titleSearchForm').addEventListener('submit', function(e
 function searchNationalLibrary(type, value) {
     const resultsDiv = document.getElementById('searchResults');
     const loadingDiv = document.getElementById('loadingIndicator');
-    
+
     resultsDiv.innerHTML = '';
     loadingDiv.style.display = 'block';
-    
+
     const formData = new FormData();
     formData.append(type, value);
-    
+
     fetch('api/national_library_search.php', {
         method: 'POST',
         body: formData
@@ -173,7 +175,7 @@ function searchNationalLibrary(type, value) {
     .then(response => response.json())
     .then(data => {
         loadingDiv.style.display = 'none';
-        
+
         if (data.success) {
             if (Array.isArray(data.data)) {
                 displayMultipleResults(data.data);
@@ -205,12 +207,12 @@ function displaySingleResult(book) {
 
 function displayMultipleResults(books) {
     const resultsDiv = document.getElementById('searchResults');
-    
+
     if (books.length === 0) {
         resultsDiv.innerHTML = '<div class="fail-notification">نتیجه‌ای یافت نشد</div>';
         return;
     }
-    
+
     resultsDiv.innerHTML = '<h3>نتایج جستجو (' + books.length + ' کتاب)</h3>';
     books.forEach(book => {
         resultsDiv.innerHTML += createBookCard(book);
@@ -220,7 +222,7 @@ function displayMultipleResults(books) {
 function createBookCard(book) {
     return `
         <div class="book-result">
-            <img src="${book.cover_image || 'assets/img/no-cover.jpg'}" 
+            <img src="${book.cover_image || 'assets/img/no-cover.jpg'}"
                  alt="${book.title}"
                  onerror="this.src='assets/img/no-cover.jpg'">
             <div class="book-info">
@@ -252,7 +254,7 @@ function importBook(bookData) {
             description: bookData.description || '',
             cover_url: bookData.cover_image || ''
         });
-        
+
         window.location.href = 'add_book.php?' + params.toString();
     }
 }

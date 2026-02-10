@@ -1,4 +1,6 @@
-<?php login();
+<?php
+require_once __DIR__ . '/includes/security.php';
+ login();
 signup();
 // x = username , y = password
 if (isset($_COOKIE['x']) && isset($_COOKIE['y'])) {

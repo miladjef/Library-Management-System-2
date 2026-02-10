@@ -19,9 +19,9 @@ if (isset($_POST['edit_cat'])) {
         </a>
         <form action="" method="POST">
             <label for="CatId">شناسه دسته بندی</label>
-            <input type="text" name="CatId" id="CatId" value="<?= $cat_id ?>" readonly>
+            <input type="text" name="CatId" id="CatId" value="<?php echo  $cat_id ?>" readonly>
             <label for="CatName">نام دسته بندی:</label>
-            <input type="text" name="CatName" id="CatName" value="<?= get_category_name($cat_id) ?>">
+            <input type="text" name="CatName" id="CatName" value="<?php echo  get_category_name($cat_id) ?>">
             <button class="submit" type="submit" name="edit_category">ویرایش دسته بندی</button>
         </form>
     </div>

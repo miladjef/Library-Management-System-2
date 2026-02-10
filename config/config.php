@@ -29,38 +29,38 @@ define('LOGS_PATH', ROOT_PATH . '/logs');
 // بارگذاری فایل .env
 function loadEnv($path = null) {
     $envPath = $path ?? CONFIG_PATH . '/.env';
-    
+
     if (!file_exists($envPath)) {
         // استفاده از مقادیر پیش‌فرض
         return false;
     }
-    
+
     $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    
+
     foreach ($lines as $line) {
         $line = trim($line);
-        
+
         // رد کردن کامنت‌ها
         if (strpos($line, '#') === 0) {
             continue;
         }
-        
+
         // پارس کردن خط
         if (strpos($line, '=') !== false) {
             list($key, $value) = explode('=', $line, 2);
             $key = trim($key);
             $value = trim($value);
-            
+
             // حذف کوتیشن‌ها
             $value = trim($value, '"\'');
-            
+
             // تنظیم در $_ENV
             if (!array_key_exists($key, $_ENV)) {
                 $_ENV[$key] = $value;
             }
         }
     }
-    
+
     return true;
 }
 
@@ -160,18 +160,18 @@ spl_autoload_register(function ($class) {
  */
 function logError($message, $context = [], $level = 'ERROR') {
     if (!ERROR_LOGGING) return false;
-    
+
     // ایجاد پوشه logs اگر وجود نداشته باشد
     if (!file_exists(LOGS_PATH)) {
         mkdir(LOGS_PATH, 0755, true);
     }
-    
+
     $logFile = LOGS_PATH . '/app_' . date('Y-m-d') . '.log';
     $timestamp = date('Y-m-d H:i:s');
-    
+
     $contextStr = !empty($context) ? ' | Context: ' . json_encode($context, JSON_UNESCAPED_UNICODE) : '';
     $logMessage = "[$timestamp] [$level] $message$contextStr\n";
-    
+
     return file_put_contents($logFile, $logMessage, FILE_APPEND | LOCK_EX);
 }
 
@@ -195,15 +195,15 @@ function logWarning($message, $context = []) {
 function secureRedirect($url, $statusCode = 302) {
     // جلوگیری از Open Redirect Vulnerability
     $parsedUrl = parse_url($url);
-    
+
     // اگر URL خارجی باشد، به صفحه اصلی هدایت کن
     if (isset($parsedUrl['scheme']) || isset($parsedUrl['host'])) {
         $url = SITE_URL;
     }
-    
+
     // پاکسازی URL
     $url = filter_var($url, FILTER_SANITIZE_URL);
-    
+
     // تنظیم header
     header("Location: $url", true, $statusCode);
     exit;
@@ -237,7 +237,7 @@ function formatJalaliDate($timestamp = null, $format = 'Y/m/d') {
     if ($timestamp === null) {
         $timestamp = time();
     }
-    
+
     require_once __DIR__ . '/jdf.php';
     return jdate($format, $timestamp);
 }
@@ -289,7 +289,7 @@ function currentUser() {
     if (!isLoggedIn()) {
         return null;
     }
-    
+
     return [
         'id' => $_SESSION['user_id'] ?? null,
         'username' => $_SESSION['username'] ?? null,
@@ -325,11 +325,11 @@ function getFlashMessage() {
  */
 function formatBytes($bytes, $precision = 2) {
     $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-    
+
     for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
         $bytes /= 1024;
     }
-    
+
     return round($bytes, $precision) . ' ' . $units[$i];
 }
 
@@ -340,11 +340,11 @@ function generateRandomPassword($length = 12) {
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()';
     $password = '';
     $charactersLength = strlen($characters);
-    
+
     for ($i = 0; $i < $length; $i++) {
         $password .= $characters[random_int(0, $charactersLength - 1)];
     }
-    
+
     return $password;
 }
 
@@ -355,7 +355,7 @@ function truncateText($text, $length = 100, $suffix = '...') {
     if (mb_strlen($text) <= $length) {
         return $text;
     }
-    
+
     return mb_substr($text, 0, $length) . $suffix;
 }
 

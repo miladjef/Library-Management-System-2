@@ -1,8 +1,9 @@
 <?php
 require_once 'inc/functions.php';
 
-if (!is_logged_in()) {
-    header('Location: login.php');
+// بررسی دسترسی ادمین
+if (!is_logged_in() || !is_admin($_SESSION['userid'])) {
+    header('Location: ../login.php');
     exit;
 }
 
@@ -18,7 +19,7 @@ if (isset($_POST['add_book'])) {
 }
 
 // دریافت دسته‌بندی‌ها
-get_categories();
+$cats = get_categories();
 
 // دریافت پارامترهای API (در صورت جستجو)
 $from_api = isset($_GET['from_api']) && $_GET['from_api'] == '1';
@@ -146,132 +147,132 @@ textarea.form-control {
 </style>
 
 <div class="add-book-container">
-    
+
     <!-- جستجوی API -->
     <div class="api-search-box">
         <h3><i class="fas fa-search"></i> جستجو در کتابخانه ملی</h3>
-        
+
         <div class="search-form">
-            <input type="text" 
-                   id="isbn-search" 
+            <input type="text"
+                   id="isbn-search"
                    placeholder="شابک کتاب را وارد کنید..."
-                   value="<?= $api_data['isbn'] ?? '' ?>">
+                   value="<?php echo htmlspecialchars($api_data['isbn'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
             <button onclick="searchByISBN()">
                 <i class="fas fa-search"></i>
                 جستجو
             </button>
         </div>
-        
+
         <div id="search-results" class="search-results"></div>
     </div>
-    
+
     <!-- فرم افزودن کتاب -->
     <div class="form-card">
         <h2><i class="fas fa-book"></i> افزودن کتاب جدید</h2>
-        
+
         <?php if (isset($success_message)): ?>
             <div class="alert alert-success">
-                <?= $success_message ?>
+                <?php echo htmlspecialchars($success_message, ENT_QUOTES, 'UTF-8') ?>
             </div>
         <?php endif; ?>
-        
+
         <?php if (isset($error_message)): ?>
             <div class="alert alert-error">
-                <?= $error_message ?>
+                <?php echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8') ?>
             </div>
         <?php endif; ?>
-        
+
         <form method="POST" enctype="multipart/form-data">
-            
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="isbn">شابک (ISBN):</label>
-                    <input type="text" 
-                           name="isbn" 
+                    <input type="text"
+                           name="isbn"
                            id="isbn"
                            class="form-control"
-                           value="<?= $api_data['isbn'] ?? '' ?>">
+                           value="<?php echo htmlspecialchars($api_data['isbn'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                 </div>
-                
+
                 <div class="form-group">
                     <label for="book_name">نام کتاب: *</label>
-                    <input type="text" 
-                           name="book_name" 
+                    <input type="text"
+                           name="book_name"
                            id="book_name"
                            class="form-control"
-                           value="<?= $api_data['title'] ?? '' ?>"
+                           value="<?php echo htmlspecialchars($api_data['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                            required>
                 </div>
             </div>
-            
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="author">نویسنده: *</label>
-                    <input type="text" 
-                           name="author" 
+                    <input type="text"
+                           name="author"
                            id="author"
                            class="form-control"
-                           value="<?= $api_data['author'] ?? '' ?>"
+                           value="<?php echo htmlspecialchars($api_data['author'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                            required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="publisher">ناشر:</label>
-                    <input type="text" 
-                           name="publisher" 
+                    <input type="text"
+                           name="publisher"
                            id="publisher"
                            class="form-control"
-                           value="<?= $api_data['publisher'] ?? '' ?>">
+                           value="<?php echo htmlspecialchars($api_data['publisher'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                 </div>
             </div>
-            
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="publish_year">سال انتشار:</label>
-                    <input type="number" 
-                           name="publish_year" 
+                    <input type="number"
+                           name="publish_year"
                            id="publish_year"
                            class="form-control"
-                           value="<?= $api_data['year'] ?? '' ?>">
+                           value="<?php echo htmlspecialchars($api_data['year'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                 </div>
-                
+
                 <div class="form-group">
                     <label for="pages">تعداد صفحات:</label>
-                    <input type="number" 
-                           name="pages" 
+                    <input type="number"
+                           name="pages"
                            id="pages"
                            class="form-control"
-                           value="<?= $api_data['pages'] ?? '' ?>">
+                           value="<?php echo htmlspecialchars($api_data['pages'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                 </div>
-                
+
                 <div class="form-group">
                     <label for="language">زبان:</label>
                     <select name="language" id="language" class="form-control">
-                        <option value="فارسی" <?= ($api_data['language'] ?? '') == 'فارسی' ? 'selected' : '' ?>>فارسی</option>
-                        <option value="انگلیسی" <?= ($api_data['language'] ?? '') == 'انگلیسی' ? 'selected' : '' ?>>انگلیسی</option>
-                        <option value="عربی" <?= ($api_data['language'] ?? '') == 'عربی' ? 'selected' : '' ?>>عربی</option>
+                        <option value="فارسی" <?php echo ($api_data['language'] ?? '') == 'فارسی' ? 'selected' : '' ?>>فارسی</option>
+                        <option value="انگلیسی" <?php echo ($api_data['language'] ?? '') == 'انگلیسی' ? 'selected' : '' ?>>انگلیسی</option>
+                        <option value="عربی" <?php echo ($api_data['language'] ?? '') == 'عربی' ? 'selected' : '' ?>>عربی</option>
                         <option value="سایر">سایر</option>
                     </select>
                 </div>
             </div>
-            
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="category">دسته‌بندی: *</label>
                     <select name="category" id="category" class="form-control" required>
                         <option value="">انتخاب کنید...</option>
                         <?php foreach ($cats as $cat): ?>
-                            <option value="<?= $cat['cat_id'] ?>">
-                                <?= $cat['cat_name'] ?>
+                            <option value="<?php echo htmlspecialchars($cat['cat_id'], ENT_QUOTES, 'UTF-8') ?>">
+                                <?php echo htmlspecialchars($cat['cat_name'], ENT_QUOTES, 'UTF-8') ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="count">تعداد نسخه: *</label>
-                    <input type="number" 
-                           name="count" 
+                    <input type="number"
+                           name="count"
                            id="count"
                            class="form-control"
                            value="1"
@@ -279,50 +280,50 @@ textarea.form-control {
                            required>
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label for="description">توضیحات:</label>
-                <textarea name="description" 
+                <textarea name="description"
                           id="description"
-                          class="form-control"><?= $api_data['description'] ?? '' ?></textarea>
+                          class="form-control"><?php echo htmlspecialchars($api_data['description'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
             </div>
-            
+
             <div class="form-group">
                 <label for="book_img">تصویر جلد:</label>
-                <input type="file" 
-                       name="book_img" 
+                <input type="file"
+                       name="book_img"
                        id="book_img"
                        class="form-control"
                        accept="image/*"
                        onchange="previewImage(this)">
                 <img id="image-preview" class="image-preview" style="display: none;">
             </div>
-            
+
             <button type="submit" name="add_book" class="btn btn-primary">
                 <i class="fas fa-plus"></i>
                 افزودن کتاب
             </button>
-            
+
         </form>
     </div>
-    
+
 </div>
 
 <script>
 // جستجو با شابک
 function searchByISBN() {
     const isbn = document.getElementById('isbn-search').value.trim();
-    
+
     if (!isbn) {
         alert('لطفاً شابک را وارد کنید');
         return;
     }
-    
+
     const resultsDiv = document.getElementById('search-results');
     resultsDiv.innerHTML = '<p style="text-align: center;">در حال جستجو...</p>';
     resultsDiv.style.display = 'block';
-    
-    fetch(`<?= siteurl() ?>/admin/api/national_library_api.php?action=search_isbn&isbn=${isbn}`)
+
+    fetch(`<?php echo siteurl() ?>/admin/api/national_library_api.php?action=search_isbn&isbn=${encodeURIComponent(isbn)}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -339,18 +340,18 @@ function searchByISBN() {
 // نمایش نتایج جستجو
 function displaySearchResults(results) {
     const resultsDiv = document.getElementById('search-results');
-    
+
     let html = '';
     results.forEach(book => {
         html += `
             <div class="result-item" onclick="fillForm(${JSON.stringify(book).replace(/"/g, '&quot;')})">
-                <strong>${book.title}</strong><br>
-                <small>نویسنده: ${book.author}</small><br>
-                <small>ناشر: ${book.publisher} | سال: ${book.year}</small>
+                <strong>${escapeHtml(book.title)}</strong><br>
+                <small>نویسنده: ${escapeHtml(book.author)}</small><br>
+                <small>ناشر: ${escapeHtml(book.publisher)} | سال: ${escapeHtml(book.year)}</small>
             </div>
         `;
     });
-    
+
     resultsDiv.innerHTML = html;
 }
 
@@ -363,19 +364,19 @@ function fillForm(book) {
     document.getElementById('publish_year').value = book.year || '';
     document.getElementById('pages').value = book.pages || '';
     document.getElementById('description').value = book.description || '';
-    
+
     // دانلود تصویر جلد
     if (book.isbn) {
         downloadCover(book.isbn);
     }
-    
+
     // بستن نتایج
     document.getElementById('search-results').style.display = 'none';
 }
 
 // دانلود تصویر جلد
 function downloadCover(isbn) {
-    fetch(`<?= siteurl() ?>/admin/api/national_library_api.php?action=download_cover&isbn=${isbn}`)
+    fetch(`<?php echo siteurl() ?>/admin/api/national_library_api.php?action=download_cover&isbn=${encodeURIComponent(isbn)}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -398,6 +399,13 @@ function previewImage(input) {
         };
         reader.readAsDataURL(input.files[0]);
     }
+}
+
+// تابع برای escape کردن HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 </script>
 

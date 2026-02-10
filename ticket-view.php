@@ -41,9 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_reply'])) {
             'message' => trim($_POST['message']),
             'sender_type' => 'user'
         ];
-        
+
         $result = $ticket->addReply($reply_data);
-        
+
         if ($result['success']) {
             $success = 'پاسخ شما ثبت شد';
             // بارگذاری مجدد اطلاعات
@@ -67,24 +67,24 @@ $replies = $ticket->getReplies($ticket_id);
     <div class="ticket-view-page">
         <!-- Breadcrumb -->
         <nav class="breadcrumb">
-            <a href="<?= siteurl() ?>">خانه</a>
+            <a href="<?php echo  siteurl() ?>">خانه</a>
             <i class="fas fa-chevron-left"></i>
             <a href="tickets.php">تیکت‌ها</a>
             <i class="fas fa-chevron-left"></i>
-            <span>تیکت #<?= $ticket_info['ticket_id'] ?></span>
+            <span>تیکت #<?php echo  $ticket_info['ticket_id'] ?></span>
         </nav>
 
         <?php if (isset($success)): ?>
             <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
-                <?= htmlspecialchars($success) ?>
+                <?php echo  htmlspecialchars($success) ?>
             </div>
         <?php endif; ?>
-        
+
         <?php if (isset($error)): ?>
             <div class="alert alert-error">
                 <i class="fas fa-exclamation-triangle"></i>
-                <?= htmlspecialchars($error) ?>
+                <?php echo  htmlspecialchars($error) ?>
             </div>
         <?php endif; ?>
 
@@ -92,25 +92,25 @@ $replies = $ticket->getReplies($ticket_id);
         <div class="ticket-details">
             <div class="ticket-header-section">
                 <div class="ticket-title-section">
-                    <h1><?= htmlspecialchars($ticket_info['title']) ?></h1>
+                    <h1><?php echo  htmlspecialchars($ticket_info['title']) ?></h1>
                     <div class="ticket-meta-info">
                         <span class="meta-item">
                             <i class="fas fa-hashtag"></i>
-                            شماره تیکت: <?= $ticket_info['ticket_id'] ?>
+                            شماره تیکت: <?php echo  $ticket_info['ticket_id'] ?>
                         </span>
                         <span class="meta-item">
                             <i class="fas fa-calendar"></i>
-                            ایجاد شده: <?= jdate('Y/m/d H:i', strtotime($ticket_info['created_at'])) ?>
+                            ایجاد شده: <?php echo  jdate('Y/m/d H:i', strtotime($ticket_info['created_at'])) ?>
                         </span>
                         <?php if ($ticket_info['updated_at']): ?>
                             <span class="meta-item">
                                 <i class="fas fa-clock"></i>
-                                آخرین به‌روزرسانی: <?= jdate('Y/m/d H:i', strtotime($ticket_info['updated_at'])) ?>
+                                آخرین به‌روزرسانی: <?php echo  jdate('Y/m/d H:i', strtotime($ticket_info['updated_at'])) ?>
                             </span>
                         <?php endif; ?>
                     </div>
                 </div>
-                
+
                 <div class="ticket-badges-section">
                     <?php
                     $status_classes = [
@@ -126,10 +126,10 @@ $replies = $ticket->getReplies($ticket_id);
                     $status_class = $status_classes[$ticket_info['status']] ?? 'badge-secondary';
                     $status_label = $status_labels[$ticket_info['status']] ?? $ticket_info['status'];
                     ?>
-                    <span class="badge badge-large <?= $status_class ?>">
-                        <?= $status_label ?>
+                    <span class="badge badge-large <?php echo  $status_class ?>">
+                        <?php echo  $status_label ?>
                     </span>
-                    
+
                     <?php
                     $priority_classes = [
                         'low' => 'badge-success',
@@ -144,12 +144,12 @@ $replies = $ticket->getReplies($ticket_id);
                     $priority_class = $priority_classes[$ticket_info['priority']] ?? 'badge-secondary';
                     $priority_label = $priority_labels[$ticket_info['priority']] ?? $ticket_info['priority'];
                     ?>
-                    <span class="badge badge-large <?= $priority_class ?>">
-                        اولویت: <?= $priority_label ?>
+                    <span class="badge badge-large <?php echo  $priority_class ?>">
+                        اولویت: <?php echo  $priority_label ?>
                     </span>
                 </div>
             </div>
-            
+
             <!-- متن اصلی تیکت -->
             <div class="ticket-message original-message">
                 <div class="message-header">
@@ -158,11 +158,11 @@ $replies = $ticket->getReplies($ticket_id);
                         <span class="sender-name">شما</span>
                     </div>
                     <span class="message-date">
-                        <?= jdate('Y/m/d H:i', strtotime($ticket_info['created_at'])) ?>
+                        <?php echo  jdate('Y/m/d H:i', strtotime($ticket_info['created_at'])) ?>
                     </span>
                 </div>
                 <div class="message-content">
-                    <?= nl2br(htmlspecialchars($ticket_info['description'])) ?>
+                    <?php echo  nl2br(htmlspecialchars($ticket_info['description'])) ?>
                 </div>
             </div>
         </div>
@@ -172,14 +172,14 @@ $replies = $ticket->getReplies($ticket_id);
             <div class="ticket-replies">
                 <h3>
                     <i class="fas fa-comments"></i>
-                    پاسخ‌ها (<?= count($replies) ?>)
+                    پاسخ‌ها (<?php echo  count($replies) ?>)
                 </h3>
-                
+
                 <?php foreach ($replies as $reply): ?>
-                    <div class="ticket-message <?= $reply['sender_type'] == 'admin' ? 'admin-message' : 'user-message' ?>">
+                    <div class="ticket-message <?php echo  $reply['sender_type'] == 'admin' ? 'admin-message' : 'user-message' ?>">
                         <div class="message-header">
                             <div class="sender-info">
-                                <i class="fas <?= $reply['sender_type'] == 'admin' ? 'fa-user-shield' : 'fa-user-circle' ?>"></i>
+                                <i class="fas <?php echo  $reply['sender_type'] == 'admin' ? 'fa-user-shield' : 'fa-user-circle' ?>"></i>
                                 <span class="sender-name">
                                     <?php if ($reply['sender_type'] == 'admin'): ?>
                                         پشتیبانی کتابخانه
@@ -189,11 +189,11 @@ $replies = $ticket->getReplies($ticket_id);
                                 </span>
                             </div>
                             <span class="message-date">
-                                <?= jdate('Y/m/d H:i', strtotime($reply['created_at'])) ?>
+                                <?php echo  jdate('Y/m/d H:i', strtotime($reply['created_at'])) ?>
                             </span>
                         </div>
                         <div class="message-content">
-                            <?= nl2br(htmlspecialchars($reply['message'])) ?>
+                            <?php echo  nl2br(htmlspecialchars($reply['message'])) ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -207,15 +207,15 @@ $replies = $ticket->getReplies($ticket_id);
                     <i class="fas fa-reply"></i>
                     پاسخ جدید
                 </h3>
-                
+
                 <form method="POST" action="">
-                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                    
+                    <input type="hidden" name="csrf_token" value="<?php echo  $_SESSION['csrf_token'] ?>">
+
                     <div class="form-group">
-                        <textarea name="message" class="form-control" rows="5" 
+                        <textarea name="message" class="form-control" rows="5"
                                   placeholder="پاسخ خود را بنویسید..." required></textarea>
                     </div>
-                    
+
                     <div class="form-actions">
                         <button type="submit" name="submit_reply" class="btn btn-primary">
                             <i class="fas fa-paper-plane"></i>

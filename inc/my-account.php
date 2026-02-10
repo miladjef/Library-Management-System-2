@@ -1,5 +1,5 @@
 <?php get_user_info()?>
-<h1 class="my-account-welcome">خوش اومدی <?= $user['name']; ?>!</h1>
+<h1 class="my-account-welcome">خوش اومدی <?php echo  $user['name']; ?>!</h1>
 
 <!--<div class="borrow-notification" id="borrow-notification">-->
 <!--    موعد تحویل کتاب های رزرو شده شما نزدیک است. کتب های رزرو شده را بررسی نمایید!-->

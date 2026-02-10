@@ -12,7 +12,7 @@ function confirmDelete(bookId, bookName) {
 function showImageModal(imageSrc) {
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
-    
+
     modal.style.display = 'block';
     modalImg.src = imageSrc;
 }

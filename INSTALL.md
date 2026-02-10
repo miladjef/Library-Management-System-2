@@ -14,8 +14,6 @@
   - curl
   - json
 
-
-
 ### بررسی نسخه PHP
 ```bash
 php -v

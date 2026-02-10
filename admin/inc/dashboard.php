@@ -13,7 +13,7 @@
         $stats_query = $conn->prepare("SELECT * FROM dashboard_stats LIMIT 1");
         $stats_query->execute();
         $stats = $stats_query->fetch(PDO::FETCH_ASSOC);
-        
+
         // اگر ویو خالی بود، مقادیر پیش‌فرض
         if (!$stats) {
             $stats = [
@@ -26,11 +26,11 @@
             ];
         }
         ?>
-        
+
         <div class="stat-card stat-books">
             <div class="stat-icon">📚</div>
             <div class="stat-info">
-                <h3><?= number_format($stats['total_books']) ?></h3>
+                <h3><?php echo  number_format($stats['total_books']) ?></h3>
                 <p>تعداد کل کتاب‌ها</p>
             </div>
         </div>
@@ -38,7 +38,7 @@
         <div class="stat-card stat-members">
             <div class="stat-icon">👥</div>
             <div class="stat-info">
-                <h3><?= number_format($stats['total_members']) ?></h3>
+                <h3><?php echo  number_format($stats['total_members']) ?></h3>
                 <p>تعداد اعضای فعال</p>
             </div>
         </div>
@@ -46,7 +46,7 @@
         <div class="stat-card stat-active">
             <div class="stat-icon">📖</div>
             <div class="stat-info">
-                <h3><?= number_format($stats['active_reservations']) ?></h3>
+                <h3><?php echo  number_format($stats['active_reservations']) ?></h3>
                 <p>امانت‌های فعال</p>
             </div>
         </div>
@@ -54,7 +54,7 @@
         <div class="stat-card stat-overdue">
             <div class="stat-icon">⏰</div>
             <div class="stat-info">
-                <h3><?= number_format($stats['overdue_reservations']) ?></h3>
+                <h3><?php echo  number_format($stats['overdue_reservations']) ?></h3>
                 <p>امانت‌های معوقه</p>
             </div>
         </div>
@@ -62,7 +62,7 @@
         <div class="stat-card stat-penalty">
             <div class="stat-icon">💰</div>
             <div class="stat-info">
-                <h3><?= number_format($stats['unpaid_penalties']) ?> تومان</h3>
+                <h3><?php echo  number_format($stats['unpaid_penalties']) ?> تومان</h3>
                 <p>جریمه‌های پرداخت نشده</p>
             </div>
         </div>
@@ -70,7 +70,7 @@
         <div class="stat-card stat-total-penalty">
             <div class="stat-icon">💵</div>
             <div class="stat-info">
-                <h3><?= number_format($stats['total_penalties']) ?> تومان</h3>
+                <h3><?php echo  number_format($stats['total_penalties']) ?> تومان</h3>
                 <p>کل جریمه‌های دریافت شده</p>
             </div>
         </div>
@@ -78,7 +78,7 @@
 
     <!-- بخش نمودار آماری ماهانه -->
     <div class="chart-section">
-        <h2 class="section-title">آمار امانت ماهانه (<?= jdate('Y') ?>)</h2>
+        <h2 class="section-title">آمار امانت ماهانه (<?php echo  jdate('Y') ?>)</h2>
         <canvas id="monthlyChart" width="400" height="150"></canvas>
     </div>
 
@@ -120,23 +120,23 @@
                             $status_text = $ticket['status'] == 'pending' ? 'در انتظار' : 'پاسخ داده شده';
                     ?>
                         <tr>
-                            <td><?= $ticket['ticket_id'] ?></td>
-                            <td><?= get_user_name($ticket['user_id']) ?></td>
-                            <td class="ticket-subject"><?= mb_substr($ticket['ticket_title'], 0, 30) ?>...</td>
-                            <td><?= jdate('Y/m/d', strtotime($ticket['created_at'])) ?></td>
-                            <td><span class="status-badge <?= $status_class ?>"><?= $status_text ?></span></td>
+                            <td><?php echo  $ticket['ticket_id'] ?></td>
+                            <td><?php echo  get_user_name($ticket['user_id']) ?></td>
+                            <td class="ticket-subject"><?php echo  mb_substr($ticket['ticket_title'], 0, 30) ?>...</td>
+                            <td><?php echo  jdate('Y/m/d', strtotime($ticket['created_at'])) ?></td>
+                            <td><span class="status-badge <?php echo  $status_class ?>"><?php echo  $status_text ?></span></td>
                             <td>
                                 <form action="reply_ticket.php" method="POST" style="display:inline;">
-                                    <input type="hidden" value="<?= $ticket['ticket_id'] ?>" name="ticket-id">
+                                    <input type="hidden" value="<?php echo  $ticket['ticket_id'] ?>" name="ticket-id">
                                     <button class="edit_delete_btn" name="reply_ticket" title="پاسخ">
                                         <img src="assets/img/reply.svg" alt="پاسخ">
                                     </button>
                                 </form>
                             </td>
                         </tr>
-                    <?php 
+                    <?php
                         }
-                    } 
+                    }
                     ?>
                     </tbody>
                 </table>
@@ -185,7 +185,7 @@
                             $return_date_ts = strtotime($reservation['return_date']);
                             $today_ts = strtotime(date('Y-m-d'));
                             $days_diff = floor(($return_date_ts - $today_ts) / 86400);
-                            
+
                             // تعیین وضعیت
                             if ($reservation['status'] == 'returned') {
                                 $status_class = 'status-returned';
@@ -208,22 +208,22 @@
                             }
                     ?>
                         <tr>
-                            <td><img src='<?= IMG_PATH . $reservation['image'] ?>' width="60px" alt="کتاب"></td>
+                            <td><img src='<?php echo  IMG_PATH . $reservation['image'] ?>' width="60px" alt="کتاب"></td>
                             <td>
-                                <a href="<?= siteurl() ?>/book.php?bid=<?= $reservation['bid'] ?>" target="_blank">
-                                    <?= mb_substr($reservation['book_name'], 0, 25) ?>...
+                                <a href="<?php echo  siteurl() ?>/book.php?bid=<?php echo  $reservation['bid'] ?>" target="_blank">
+                                    <?php echo  mb_substr($reservation['book_name'], 0, 25) ?>...
                                 </a>
                             </td>
-                            <td><?= $reservation['name'] . ' ' . $reservation['surname'] ?></td>
-                            <td><?= jdate('Y/m/d', strtotime($reservation['reservation_date'])) ?></td>
-                            <td><?= jdate('Y/m/d', strtotime($reservation['return_date'])) ?></td>
+                            <td><?php echo  $reservation['name'] . ' ' . $reservation['surname'] ?></td>
+                            <td><?php echo  jdate('Y/m/d', strtotime($reservation['reservation_date'])) ?></td>
+                            <td><?php echo  jdate('Y/m/d', strtotime($reservation['return_date'])) ?></td>
                             <td>
-                                <span class="status-badge <?= $status_class ?>"><?= $status_text ?></span>
-                                <small class="days-info"><?= $days_text ?></small>
+                                <span class="status-badge <?php echo  $status_class ?>"><?php echo  $status_text ?></span>
+                                <small class="days-info"><?php echo  $days_text ?></small>
                             </td>
                             <td>
                                 <?php if ($reservation['penalty'] > 0): ?>
-                                    <span class="penalty-amount"><?= number_format($reservation['penalty']) ?> تومان</span>
+                                    <span class="penalty-amount"><?php echo  number_format($reservation['penalty']) ?> تومان</span>
                                     <?php if ($reservation['penalty_paid']): ?>
                                         <span class="penalty-paid">✓</span>
                                     <?php else: ?>
@@ -234,9 +234,9 @@
                                 <?php endif; ?>
                             </td>
                         </tr>
-                    <?php 
+                    <?php
                         }
-                    } 
+                    }
                     ?>
                     </tbody>
                 </table>
@@ -269,7 +269,7 @@
                 foreach ($activities as $activity) {
                     $icon = '';
                     $color_class = '';
-                    
+
                     switch($activity['activity_type']) {
                         case 'register':
                             $icon = '👤';
@@ -291,18 +291,18 @@
                             $icon = '📝';
                             $color_class = 'activity-other';
                     }
-                    
+
                     $time_ago = time_elapsed_string($activity['created_at']);
             ?>
-                <div class="activity-item <?= $color_class ?>">
-                    <div class="activity-icon"><?= $icon ?></div>
+                <div class="activity-item <?php echo  $color_class ?>">
+                    <div class="activity-icon"><?php echo  $icon ?></div>
                     <div class="activity-content">
                         <div class="activity-user">
-                            <strong><?= $activity['name'] . ' ' . $activity['surname'] ?></strong>
-                            <span class="username">(@<?= $activity['username'] ?>)</span>
+                            <strong><?php echo  $activity['name'] . ' ' . $activity['surname'] ?></strong>
+                            <span class="username">(@<?php echo  $activity['username'] ?>)</span>
                         </div>
-                        <div class="activity-description"><?= $activity['description'] ?></div>
-                        <div class="activity-time"><?= $time_ago ?></div>
+                        <div class="activity-description"><?php echo  $activity['description'] ?></div>
+                        <div class="activity-time"><?php echo  $time_ago ?></div>
                     </div>
                 </div>
             <?php

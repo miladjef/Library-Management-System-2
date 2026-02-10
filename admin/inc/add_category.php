@@ -12,7 +12,7 @@
     </a>
     <form action="#" method="POST">
         <label for="CatId">شناسه دسته بندی</label>
-        <input type="text" name="CatId" id="CatId" value="<?= rand(1, 999) ?>" readonly>
+        <input type="text" name="CatId" id="CatId" value="<?php echo  rand(1, 999) ?>" readonly>
         <label for="CatName">نام دسته بندی:</label>
         <input type="text" name="CatName" id="CatName" required>
         <button class="submit" type="submit" name="add_category">افزودن دسته بندی</button>

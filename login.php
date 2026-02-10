@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/includes/security.php';
+
 // login.php
 require_once 'inc/config.php';
 require_once 'classes/Auth.php';
@@ -22,9 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
         $username = trim($_POST['username']);
         $password = $_POST['password'];
         $remember = isset($_POST['remember']);
-        
+
         $result = $auth->login($username, $password, $remember);
-        
+
         if ($result['success']) {
             // ثبت لاگ ورود
             $log_data = [
@@ -35,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
                 'user_agent' => $_SERVER['HTTP_USER_AGENT']
             ];
             $auth->logActivity($log_data);
-            
+
             // ریدایرکت بر اساس نقش
             if ($result['role'] == 2) {
                 header('Location: admin/index.php');
@@ -46,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
             exit;
         } else {
             $error = $result['message'];
-            
+
             // ثبت تلاش ناموفق
             $auth->logFailedLogin($username, $_SERVER['REMOTE_ADDR']);
         }
@@ -76,34 +78,34 @@ include "inc/header.php";
             <?php if (isset($error)): ?>
                 <div class="alert alert-error">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <?= htmlspecialchars($error) ?>
+                    <?php echo  htmlspecialchars($error) ?>
                 </div>
             <?php endif; ?>
 
             <?php if (isset($_SESSION['success_message'])): ?>
                 <div class="alert alert-success">
                     <i class="fas fa-check-circle"></i>
-                    <?= htmlspecialchars($_SESSION['success_message']) ?>
+                    <?php echo  htmlspecialchars($_SESSION['success_message']) ?>
                 </div>
                 <?php unset($_SESSION['success_message']); ?>
             <?php endif; ?>
 
             <!-- فرم ورود -->
             <form method="POST" action="" class="auth-form" id="loginForm">
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                
+                <input type="hidden" name="csrf_token" value="<?php echo  $_SESSION['csrf_token'] ?>">
+
                 <div class="form-group">
                     <label for="username" class="form-label">
                         <i class="fas fa-user"></i>
                         نام کاربری یا ایمیل
                     </label>
-                    <input type="text" 
-                           name="username" 
-                           id="username" 
-                           class="form-control" 
+                    <input type="text"
+                           name="username"
+                           id="username"
+                           class="form-control"
                            placeholder="نام کاربری یا ایمیل خود را وارد کنید"
-                           value="<?= isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '' ?>"
-                           required 
+                           value="<?php echo  isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '' ?>"
+                           required
                            autofocus>
                 </div>
 
@@ -113,10 +115,10 @@ include "inc/header.php";
                         رمز عبور
                     </label>
                     <div class="password-input-wrapper">
-                        <input type="password" 
-                               name="password" 
-                               id="password" 
-                               class="form-control" 
+                        <input type="password"
+                               name="password"
+                               id="password"
+                               class="form-control"
                                placeholder="رمز عبور خود را وارد کنید"
                                required>
                         <button type="button" class="password-toggle" onclick="togglePassword('password')">
@@ -157,7 +159,7 @@ include "inc/header.php";
 
             <!-- بازگشت به خانه -->
             <div class="auth-back">
-                <a href="<?= siteurl() ?>">
+                <a href="<?php echo  siteurl() ?>">
                     <i class="fas fa-arrow-right"></i>
                     بازگشت به صفحه اصلی
                 </a>
@@ -170,7 +172,7 @@ include "inc/header.php";
                 <img src="assets/img/login-illustration.svg" alt="Login">
                 <h2>دسترسی به هزاران کتاب</h2>
                 <p>با ورود به سیستم می‌توانید کتاب‌های مورد علاقه خود را امانت بگیرید</p>
-                
+
                 <div class="features-list">
                     <div class="feature-item">
                         <i class="fas fa-check-circle"></i>
@@ -195,7 +197,7 @@ include "inc/header.php";
 function togglePassword(inputId) {
     const input = document.getElementById(inputId);
     const icon = document.getElementById(inputId + '-icon');
-    
+
     if (input.type === 'password') {
         input.type = 'text';
         icon.classList.remove('fa-eye');
@@ -211,7 +213,7 @@ function togglePassword(inputId) {
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value;
-    
+
     if (!username || !password) {
         e.preventDefault();
         alert('لطفا تمام فیلدها را پر کنید');

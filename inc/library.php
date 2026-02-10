@@ -12,15 +12,15 @@
         foreach ($books as $book) { ?>
             <div class="book-box">
                 <div class="book-box-info">
-                    <img alt="" src="assets/img/books/<?= $book['image'] ?>">
+                    <img alt="" src="assets/img/books/<?php echo  $book['image'] ?>">
                     <div class="infos">
-                        <h1><?= $book['book_name'] ?></h1>
+                        <h1><?php echo  $book['book_name'] ?></h1>
                         <h5>دسته بندی: <a style="text-decoration: none;color: #000"
-                                          href="category.php?cat_id=<?= $book['category_id'] ?>">
-                                <?= get_category_name($book['category_id']) ?>
+                                          href="category.php?cat_id=<?php echo  $book['category_id'] ?>">
+                                <?php echo  get_category_name($book['category_id']) ?>
                             </a></h5>
-                        <h5>نویسنده : <?= $book['author'] ?></h5>
-                        <h5>سال چاپ : <?= $book['publish_year'] ?></h5>
+                        <h5>نویسنده : <?php echo  $book['author'] ?></h5>
+                        <h5>سال چاپ : <?php echo  $book['publish_year'] ?></h5>
                         <h5>موجودی کتابخانه: <?php if ($book['count'] > 0) {
                                 echo $book['count'] . ' عدد ';
                             } else {
@@ -28,7 +28,7 @@
                             } ?></h5>
                     </div>
                     <div class="more-info-button">
-                        <a style="padding: 0.6rem 4rem;" class="more-btn" href="book.php?bid=<?= $book['bid'] ?>">توضیحات
+                        <a style="padding: 0.6rem 4rem;" class="more-btn" href="book.php?bid=<?php echo  $book['bid'] ?>">توضیحات
                             بیشتر</a>
                         <!--                        <a class="borrow-btn" href="#">درخواست امانت گرفتن</a>-->
                     </div>
@@ -39,10 +39,10 @@
             <?php
             $i = 1;
             while ($i <= book_pages()) { ?>
-                <a href="?page=<?= $i ?>">
+                <a href="?page=<?php echo  $i ?>">
                     <div class="page-number <?php if (isset($_GET['page']) && $_GET['page'] == $i) {
                         echo "selected";
-                    } ?>"><?= $i ?></div>
+                    } ?>"><?php echo  $i ?></div>
                 </a>
                 <?php $i++;
             } ?>
@@ -63,8 +63,8 @@
 
         <div class="sidebar-categories-container">
             <?php foreach ($cats as $cat) { ?>
-                <a href="category.php?cat_id=<?= $cat['cat_id'] ?>"
-                   class="sidebar-category-box"><?= $cat['cat_name'] ?></a>
+                <a href="category.php?cat_id=<?php echo  $cat['cat_id'] ?>"
+                   class="sidebar-category-box"><?php echo  $cat['cat_name'] ?></a>
             <?php } ?>
         </div>
     </div>

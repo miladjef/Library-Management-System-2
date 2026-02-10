@@ -28,20 +28,20 @@ if (isset($_POST['update_settings'])) {
     $sync_enabled = isset($_POST['sync_enabled']) ? 1 : 0;
     $sync_interval = intval($_POST['sync_interval_hours']);
     $auto_download = isset($_POST['auto_download_covers']) ? 1 : 0;
-    
+
     if ($sync_interval < 1) $sync_interval = 24;
-    
+
     $stmt = $pdo->prepare("
-        UPDATE sync_settings 
-        SET sync_enabled = ?, 
-            sync_interval_hours = ?, 
+        UPDATE sync_settings
+        SET sync_enabled = ?,
+            sync_interval_hours = ?,
             auto_download_covers = ?
         WHERE id = 1
     ");
-    
+
     if ($stmt->execute([$sync_enabled, $sync_interval, $auto_download])) {
         $success_message = 'تنظیمات با موفقیت ذخیره شد';
-        
+
         // بارگذاری مجدد تنظیمات
         $stmt = $pdo->query("SELECT * FROM sync_settings WHERE id = 1");
         $settings = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -52,7 +52,7 @@ if (isset($_POST['update_settings'])) {
 
 // دریافت آمار
 $stats_query = "
-    SELECT 
+    SELECT
         operation_type,
         status,
         COUNT(*) as count,
@@ -64,8 +64,8 @@ $stats = $pdo->query($stats_query)->fetchAll(PDO::FETCH_ASSOC);
 
 // آخرین لاگ‌ها
 $logs_query = "
-    SELECT * FROM national_library_logs 
-    ORDER BY created_at DESC 
+    SELECT * FROM national_library_logs
+    ORDER BY created_at DESC
     LIMIT 50
 ";
 $logs = $pdo->query($logs_query)->fetchAll(PDO::FETCH_ASSOC);
@@ -308,7 +308,7 @@ include "inc/header.php";
 </style>
 
 <div class="sync-container">
-    
+
     <!-- هدر صفحه -->
     <div class="sync-card">
         <div class="sync-header">
@@ -320,28 +320,28 @@ include "inc/header.php";
                 </p>
             </div>
         </div>
-        
+
         <?php if (isset($success_message)): ?>
             <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
-                <?= $success_message ?>
+                <?php echo  $success_message ?>
             </div>
         <?php endif; ?>
-        
+
         <?php if (isset($error_message)): ?>
             <div class="alert alert-error">
                 <i class="fas fa-exclamation-triangle"></i>
-                <?= $error_message ?>
+                <?php echo  $error_message ?>
             </div>
         <?php endif; ?>
-        
+
         <!-- آمار کلی -->
         <div class="stats-grid">
             <?php
             $total_operations = 0;
             $successful_operations = 0;
             $failed_operations = 0;
-            
+
             foreach ($stats as $stat) {
                 $total_operations += $stat['count'];
                 if ($stat['status'] == 'success') {
@@ -351,26 +351,26 @@ include "inc/header.php";
                 }
             }
             ?>
-            
+
             <div class="stat-box">
-                <div class="number"><?= $total_operations ?></div>
+                <div class="number"><?php echo  $total_operations ?></div>
                 <div class="label">کل عملیات</div>
             </div>
-            
+
             <div class="stat-box success">
-                <div class="number"><?= $successful_operations ?></div>
+                <div class="number"><?php echo  $successful_operations ?></div>
                 <div class="label">موفق</div>
             </div>
-            
+
             <div class="stat-box error">
-                <div class="number"><?= $failed_operations ?></div>
+                <div class="number"><?php echo  $failed_operations ?></div>
                 <div class="label">ناموفق</div>
             </div>
-            
+
             <div class="stat-box">
                 <div class="number">
                     <?php if ($settings['last_sync_at']): ?>
-                        <?= jdate('H:i - Y/m/d', strtotime($settings['last_sync_at'])) ?>
+                        <?php echo  jdate('H:i - Y/m/d', strtotime($settings['last_sync_at'])) ?>
                     <?php else: ?>
                         ---
                     <?php endif; ?>
@@ -379,83 +379,83 @@ include "inc/header.php";
             </div>
         </div>
     </div>
-    
+
     <!-- تنظیمات سینک خودکار -->
     <div class="sync-card">
         <h3><i class="fas fa-cog"></i> تنظیمات سینک خودکار</h3>
-        
+
         <form method="POST">
             <div class="form-group">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" 
-                           name="sync_enabled" 
+                    <input type="checkbox"
+                           name="sync_enabled"
                            id="sync_enabled"
-                           <?= $settings['sync_enabled'] ? 'checked' : '' ?>>
+                           <?php echo  $settings['sync_enabled'] ? 'checked' : '' ?>>
                     <label for="sync_enabled" style="margin: 0;">
                         فعال‌سازی سینک خودکار
                     </label>
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label for="sync_interval_hours">
                     فاصله زمانی سینک (ساعت):
                 </label>
-                <input type="number" 
-                       name="sync_interval_hours" 
+                <input type="number"
+                       name="sync_interval_hours"
                        id="sync_interval_hours"
                        class="form-control"
-                       value="<?= $settings['sync_interval_hours'] ?>"
+                       value="<?php echo  $settings['sync_interval_hours'] ?>"
                        min="1"
                        max="168">
                 <small style="color: #666;">توصیه می‌شود: 24 ساعت</small>
             </div>
-            
+
             <div class="form-group">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" 
-                           name="auto_download_covers" 
+                    <input type="checkbox"
+                           name="auto_download_covers"
                            id="auto_download_covers"
-                           <?= $settings['auto_download_covers'] ? 'checked' : '' ?>>
+                           <?php echo  $settings['auto_download_covers'] ? 'checked' : '' ?>>
                     <label for="auto_download_covers" style="margin: 0;">
                         دانلود خودکار تصاویر جلد
                     </label>
                 </div>
             </div>
-            
+
             <div class="info-box">
                 <strong>نکته:</strong> برای فعال‌سازی سینک خودکار، باید یک Cron Job تنظیم کنید:
-                <pre style="margin-top: 10px; padding: 10px; background: white; border-radius: 4px;">0 2 * * * /usr/bin/php <?= __DIR__ ?>/cron/sync_national_library.php</pre>
+                <pre style="margin-top: 10px; padding: 10px; background: white; border-radius: 4px;">0 2 * * * /usr/bin/php <?php echo  __DIR__ ?>/cron/sync_national_library.php</pre>
             </div>
-            
+
             <button type="submit" name="update_settings" class="btn btn-primary">
                 <i class="fas fa-save"></i>
                 ذخیره تنظیمات
             </button>
         </form>
     </div>
-    
+
     <!-- عملیات دستی -->
     <div class="sync-card">
         <h3><i class="fas fa-hand-pointer"></i> عملیات دستی</h3>
-        
+
         <div class="button-group">
             <button onclick="runFullSync()" class="btn btn-success">
                 <i class="fas fa-sync"></i>
                 اجرای سینک کامل
             </button>
-            
+
             <button onclick="downloadAllCovers()" class="btn btn-warning">
                 <i class="fas fa-images"></i>
                 دانلود همه جلدها
             </button>
-            
+
             <button onclick="clearLogs()" class="btn btn-danger">
                 <i class="fas fa-trash"></i>
                 پاک‌سازی لاگ‌ها
             </button>
         </div>
-        
+
         <div id="sync-progress" style="margin-top: 20px; display: none;">
             <div class="alert alert-info">
                 <span class="loading"></span>
@@ -463,11 +463,11 @@ include "inc/header.php";
             </div>
         </div>
     </div>
-    
+
     <!-- آخرین لاگ‌ها -->
     <div class="sync-card">
         <h3><i class="fas fa-list"></i> آخرین لاگ‌های عملیات</h3>
-        
+
         <div style="overflow-x: auto;">
             <table class="log-table">
                 <thead>
@@ -483,7 +483,7 @@ include "inc/header.php";
                     <?php foreach ($logs as $log): ?>
                         <tr>
                             <td>
-                                <?= jdate('H:i:s - Y/m/d', strtotime($log['created_at'])) ?>
+                                <?php echo  jdate('H:i:s - Y/m/d', strtotime($log['created_at'])) ?>
                             </td>
                             <td>
                                 <?php
@@ -496,16 +496,16 @@ include "inc/header.php";
                                 echo $operation_names[$log['operation_type']] ?? $log['operation_type'];
                                 ?>
                             </td>
-                            <td><?= e($log['search_query']) ?></td>
+                            <td><?php echo  e($log['search_query']) ?></td>
                             <td>
-                                <span class="status-badge <?= $log['status'] ?>">
-                                    <?= $log['status'] == 'success' ? 'موفق' : 'ناموفق' ?>
+                                <span class="status-badge <?php echo  $log['status'] ?>">
+                                    <?php echo  $log['status'] == 'success' ? 'موفق' : 'ناموفق' ?>
                                 </span>
                             </td>
                             <td>
                                 <?php if ($log['error_message']): ?>
                                     <small style="color: #f44336;">
-                                        <?= e($log['error_message']) ?>
+                                        <?php echo  e($log['error_message']) ?>
                                     </small>
                                 <?php else: ?>
                                     <small style="color: #4CAF50;">✓</small>
@@ -517,7 +517,7 @@ include "inc/header.php";
             </table>
         </div>
     </div>
-    
+
 </div>
 
 <script>
@@ -526,14 +526,14 @@ function runFullSync() {
     if (!confirm('آیا از اجرای سینک کامل اطمینان دارید؟ این عملیات ممکن است چند دقیقه طول بکشد.')) {
         return;
     }
-    
+
     const progressDiv = document.getElementById('sync-progress');
     const progressText = document.getElementById('progress-text');
-    
+
     progressDiv.style.display = 'block';
     progressText.textContent = 'در حال سینک کتاب‌ها...';
-    
-    fetch('<?= siteurl() ?>/admin/cron/sync_national_library.php')
+
+    fetch('<?php echo  siteurl() ?>/admin/cron/sync_national_library.php')
         .then(response => response.text())
         .then(data => {
             progressText.textContent = 'سینک با موفقیت انجام شد';
@@ -551,13 +551,13 @@ function downloadAllCovers() {
     if (!confirm('آیا از دانلود همه تصاویر جلد اطمینان دارید؟')) {
         return;
     }
-    
+
     const progressDiv = document.getElementById('sync-progress');
     const progressText = document.getElementById('progress-text');
-    
+
     progressDiv.style.display = 'block';
     progressText.textContent = 'در حال دانلود تصاویر جلد...';
-    
+
     // TODO: پیاده‌سازی دانلود دسته‌جمعی
     alert('این قابلیت به زودی اضافه خواهد شد');
     progressDiv.style.display = 'none';
@@ -568,8 +568,8 @@ function clearLogs() {
     if (!confirm('آیا از پاک‌سازی تمام لاگ‌ها اطمینان دارید؟')) {
         return;
     }
-    
-    fetch('<?= siteurl() ?>/admin/api/clear_logs.php', {
+
+    fetch('<?php echo  siteurl() ?>/admin/api/clear_logs.php', {
         method: 'POST'
     })
     .then(response => response.json())

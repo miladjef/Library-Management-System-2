@@ -1,5 +1,5 @@
 -- اصلاح جدول books برای افزودن فیلدهای جدید
-ALTER TABLE `books` 
+ALTER TABLE `books`
 ADD COLUMN IF NOT EXISTS `isbn` VARCHAR(20) NULL AFTER `description`,
 ADD COLUMN IF NOT EXISTS `pages` INT NULL AFTER `isbn`,
 ADD COLUMN IF NOT EXISTS `language` VARCHAR(50) DEFAULT 'فارسی' AFTER `pages`,
@@ -41,15 +41,15 @@ ON DUPLICATE KEY UPDATE id=id;
 
 -- ایجاد view برای آمار داشبورد
 CREATE OR REPLACE VIEW `dashboard_stats` AS
-SELECT 
+SELECT
     (SELECT COUNT(*) FROM books) as total_books,
     (SELECT COUNT(*) FROM members WHERE role = 1) as total_members,
     (SELECT COUNT(*) FROM reservations WHERE status = 'active') as active_reservations,
-    (SELECT COUNT(*) FROM reservations 
+    (SELECT COUNT(*) FROM reservations
      WHERE status = 'active' AND return_date < CURDATE()) as overdue_reservations,
-    (SELECT COALESCE(SUM(penalty), 0) FROM reservations 
+    (SELECT COALESCE(SUM(penalty), 0) FROM reservations
      WHERE penalty > 0 AND penalty_paid = 0) as unpaid_penalties,
-    (SELECT COALESCE(SUM(penalty), 0) FROM reservations 
+    (SELECT COALESCE(SUM(penalty), 0) FROM reservations
      WHERE penalty > 0 AND penalty_paid = 1) as total_penalties;
 
 -- ایجاد جدول لاگ فعالیت اعضا
@@ -73,7 +73,7 @@ ADD COLUMN IF NOT EXISTS `penalty` DECIMAL(10,2) DEFAULT 0.00 AFTER `return_date
 ADD COLUMN IF NOT EXISTS `penalty_paid` TINYINT(1) DEFAULT 0 AFTER `penalty`;
 
 -- به‌روزرسانی داده‌های موجود
-UPDATE `reservations` 
+UPDATE `reservations`
 SET `reservation_date` = DATE(`date`),
     `return_date` = DATE_ADD(DATE(`date`), INTERVAL `duration` DAY)
 WHERE `reservation_date` IS NULL;

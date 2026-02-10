@@ -4,13 +4,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     const userBtn = document.querySelector('.user-btn');
     const userMenu = document.querySelector('.user-menu');
-    
+
     if (userBtn && userMenu) {
         userBtn.addEventListener('click', function(e) {
             e.stopPropagation();
             userMenu.classList.toggle('active');
         });
-        
+
         // بستن منو با کلیک خارج از آن
         document.addEventListener('click', function(e) {
             if (!userMenu.contains(e.target) && !userBtn.contains(e.target)) {
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function toggleMobileMenu() {
     const navMenu = document.getElementById('nav-menu');
     const body = document.body;
-    
+
     navMenu.classList.toggle('active');
     body.classList.toggle('menu-open');
 }
@@ -32,14 +32,14 @@ function toggleMobileMenu() {
 // Search Functionality
 function initSearchAutocomplete() {
     const searchInput = document.querySelector('.search-input');
-    
+
     if (searchInput) {
         let debounceTimer;
-        
+
         searchInput.addEventListener('input', function() {
             clearTimeout(debounceTimer);
             const query = this.value.trim();
-            
+
             if (query.length >= 2) {
                 debounceTimer = setTimeout(() => {
                     fetchSearchSuggestions(query);
@@ -68,14 +68,14 @@ function fetchSearchSuggestions(query) {
 
 function displaySearchSuggestions(suggestions) {
     let suggestionsBox = document.getElementById('search-suggestions');
-    
+
     if (!suggestionsBox) {
         suggestionsBox = document.createElement('div');
         suggestionsBox.id = 'search-suggestions';
         suggestionsBox.className = 'search-suggestions';
         document.querySelector('.search-box').appendChild(suggestionsBox);
     }
-    
+
     suggestionsBox.innerHTML = suggestions.map(item => `
         <a href="book.php?id=${item.bid}" class="suggestion-item">
             <img src="${item.image}" alt="${item.book_name}" onerror="this.src='assets/img/no-image.jpg'">
@@ -85,7 +85,7 @@ function displaySearchSuggestions(suggestions) {
             </div>
         </a>
     `).join('');
-    
+
     suggestionsBox.classList.add('active');
 }
 
@@ -107,7 +107,7 @@ function applyFilters() {
 // Book Actions
 function addToWishlist(bookId) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-    
+
     fetch('api/add_to_wishlist.php', {
         method: 'POST',
         headers: {

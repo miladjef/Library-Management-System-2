@@ -32,22 +32,22 @@ if (!preg_match('/^(?:\d{10}|\d{13})$/', $isbn)) {
 
 try {
     $db = Database::getInstance()->getConnection();
-    
+
     // بررسی تکراری بودن (به جز کتاب فعلی در حالت ویرایش)
     $query = "SELECT COUNT(*) as count FROM books WHERE isbn = :isbn";
     if ($currentBookId > 0) {
         $query .= " AND bid != :book_id";
     }
-    
+
     $stmt = $db->prepare($query);
     $stmt->bindParam(':isbn', $isbn);
     if ($currentBookId > 0) {
         $stmt->bindParam(':book_id', $currentBookId, PDO::PARAM_INT);
     }
     $stmt->execute();
-    
+
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($result['count'] > 0) {
         echo json_encode([
             'valid' => false,
@@ -59,7 +59,7 @@ try {
             'message' => 'ISBN معتبر است'
         ]);
     }
-    
+
 } catch (Exception $e) {
     logError('ISBN Validation Error: ' . $e->getMessage());
     echo json_encode([

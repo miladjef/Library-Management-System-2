@@ -268,7 +268,7 @@ class Extract
     private static function buildDelimiter($delimiter): string
     {
         if (is_array($delimiter)) {
-            /** @var array<?string> */
+            /** @var array<?php string> */
             $delimiter = Functions::flattenArray($delimiter);
             $quotedDelimiters = array_map(
                 fn (?string $delimiter): string => preg_quote($delimiter ?? '', '/'),

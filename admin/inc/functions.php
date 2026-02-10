@@ -63,19 +63,19 @@ function is_logged_in() {
  */
 function is_admin($userid = null) {
     global $pdo;
-    
+
     if ($userid === null && isset($_SESSION['userid'])) {
         $userid = $_SESSION['userid'];
     }
-    
+
     if (!$userid) {
         return false;
     }
-    
+
     $stmt = $pdo->prepare("SELECT role FROM members WHERE mid = ?");
     $stmt->execute([$userid]);
     $user = $stmt->fetch();
-    
+
     return $user && $user['role'] == 2;
 }
 
@@ -135,11 +135,11 @@ function get_category_name($cat_id) {
  */
 function add_book() {
     global $pdo;
-    
+
     if (!isset($_POST['add_book'])) {
         return false;
     }
-    
+
     try {
         // آپلود تصویر
         $book_image = 'default.jpg';
@@ -148,17 +148,17 @@ function add_book() {
             $rand = rand(1, 99999) . '-';
             $file_ext = strtolower(pathinfo($_FILES["book_img"]["name"], PATHINFO_EXTENSION));
             $allowed_ext = ['jpg', 'jpeg', 'png', 'gif'];
-            
+
             if (in_array($file_ext, $allowed_ext)) {
                 $new_filename = $rand . basename($_FILES["book_img"]["name"]);
                 $target_file = $target_dir . $new_filename;
-                
+
                 if (move_uploaded_file($_FILES["book_img"]["tmp_name"], $target_file)) {
                     $book_image = $new_filename;
                 }
             }
         }
-        
+
         // دریافت داده‌ها
         $book_name = sanitize_input($_POST['book_name']);
         $author = sanitize_input($_POST['author']);
@@ -170,28 +170,28 @@ function add_book() {
         $isbn = sanitize_input($_POST['isbn'] ?? '');
         $pages = intval($_POST['pages'] ?? 0);
         $language = sanitize_input($_POST['language'] ?? 'فارسی');
-        
+
         // اعتبارسنجی
         if (empty($book_name) || empty($author) || $count < 1) {
             throw new Exception("فیلدهای ضروری خالی است");
         }
-        
+
         // درج در دیتابیس
         $sql = "INSERT INTO books (
-            book_name, author, publisher, publish_year, 
-            category_id, count, description, book_img, 
+            book_name, author, publisher, publish_year,
+            category_id, count, description, book_img,
             isbn, pages, language, date
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
-        
+
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             $book_name, $author, $publisher, $publish_year,
             $category, $count, $description, $book_image,
             $isbn, $pages, $language
         ]);
-        
+
         return true;
-        
+
     } catch (Exception $e) {
         error_log("Error adding book: " . $e->getMessage());
         return false;
@@ -213,26 +213,26 @@ function get_book_data($book_id) {
  */
 function edit_book() {
     global $pdo;
-    
+
     if (!isset($_POST['edit_book'])) {
         return false;
     }
-    
+
     try {
         $book_id = intval($_POST['bid']);
         $book_image = $_POST['current_image'] ?? 'default.jpg';
-        
+
         // آپلود تصویر جدید
         if (isset($_FILES['book_img']) && $_FILES['book_img']['error'] == 0) {
             $target_dir = "../assets/img/books/";
             $rand = rand(1, 99999) . '-';
             $file_ext = strtolower(pathinfo($_FILES["book_img"]["name"], PATHINFO_EXTENSION));
             $allowed_ext = ['jpg', 'jpeg', 'png', 'gif'];
-            
+
             if (in_array($file_ext, $allowed_ext)) {
                 $new_filename = $rand . basename($_FILES["book_img"]["name"]);
                 $target_file = $target_dir . $new_filename;
-                
+
                 if (move_uploaded_file($_FILES["book_img"]["tmp_name"], $target_file)) {
                     // حذف تصویر قدیمی
                     if ($book_image != 'default.jpg' && file_exists($target_dir . $book_image)) {
@@ -242,7 +242,7 @@ function edit_book() {
                 }
             }
         }
-        
+
         // دریافت داده‌ها
         $book_name = sanitize_input($_POST['book_name']);
         $author = sanitize_input($_POST['author']);
@@ -254,23 +254,23 @@ function edit_book() {
         $isbn = sanitize_input($_POST['isbn'] ?? '');
         $pages = intval($_POST['pages'] ?? 0);
         $language = sanitize_input($_POST['language'] ?? 'فارسی');
-        
+
         // به‌روزرسانی
-        $sql = "UPDATE books SET 
+        $sql = "UPDATE books SET
             book_name = ?, author = ?, publisher = ?, publish_year = ?,
             category_id = ?, count = ?, description = ?, book_img = ?,
             isbn = ?, pages = ?, language = ?
             WHERE bid = ?";
-        
+
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             $book_name, $author, $publisher, $publish_year,
             $category, $count, $description, $book_image,
             $isbn, $pages, $language, $book_id
         ]);
-        
+
         return true;
-        
+
     } catch (Exception $e) {
         error_log("Error editing book: " . $e->getMessage());
         return false;
@@ -282,15 +282,15 @@ function edit_book() {
  */
 function delete_book($book_id) {
     global $pdo;
-    
+
     try {
         // دریافت اطلاعات کتاب برای حذف تصویر
         $book = get_book_data($book_id);
-        
+
         // حذف از دیتابیس
         $stmt = $pdo->prepare("DELETE FROM books WHERE bid = ?");
         $stmt->execute([$book_id]);
-        
+
         // حذف تصویر
         if ($book && $book['book_img'] != 'default.jpg') {
             $image_path = "../assets/img/books/" . $book['book_img'];
@@ -298,9 +298,9 @@ function delete_book($book_id) {
                 unlink($image_path);
             }
         }
-        
+
         return true;
-        
+
     } catch (Exception $e) {
         error_log("Error deleting book: " . $e->getMessage());
         return false;
@@ -312,19 +312,19 @@ function delete_book($book_id) {
  */
 function add_category() {
     global $pdo;
-    
+
     if (!isset($_POST['add_category'])) {
         return false;
     }
-    
+
     try {
         $cat_name = sanitize_input($_POST['cat_name']);
-        
+
         $stmt = $pdo->prepare("INSERT INTO categories (cat_name, date) VALUES (?, NOW())");
         $stmt->execute([$cat_name]);
-        
+
         return true;
-        
+
     } catch (Exception $e) {
         error_log("Error adding category: " . $e->getMessage());
         return false;
@@ -336,20 +336,20 @@ function add_category() {
  */
 function update_category() {
     global $pdo;
-    
+
     if (!isset($_POST['edit_category'])) {
         return false;
     }
-    
+
     try {
         $cat_id = intval($_POST['cat_id']);
         $cat_name = sanitize_input($_POST['cat_name']);
-        
+
         $stmt = $pdo->prepare("UPDATE categories SET cat_name = ? WHERE cat_id = ?");
         $stmt->execute([$cat_name, $cat_id]);
-        
+
         return true;
-        
+
     } catch (Exception $e) {
         error_log("Error updating category: " . $e->getMessage());
         return false;
@@ -361,22 +361,22 @@ function update_category() {
  */
 function delete_category($cat_id) {
     global $pdo;
-    
+
     try {
         // بررسی وجود کتاب در این دسته
         $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM books WHERE category_id = ?");
         $stmt->execute([$cat_id]);
         $result = $stmt->fetch();
-        
+
         if ($result['count'] > 0) {
             throw new Exception("این دسته دارای کتاب است و نمی‌توان حذف کرد");
         }
-        
+
         $stmt = $pdo->prepare("DELETE FROM categories WHERE cat_id = ?");
         $stmt->execute([$cat_id]);
-        
+
         return true;
-        
+
     } catch (Exception $e) {
         error_log("Error deleting category: " . $e->getMessage());
         return false;
@@ -391,7 +391,7 @@ function get_user_name($user_id) {
     $stmt = $pdo->prepare("SELECT name, surname FROM members WHERE mid = ?");
     $stmt->execute([$user_id]);
     $user = $stmt->fetch();
-    
+
     if ($user) {
         return $user['name'] . " " . $user['surname'];
     }
@@ -418,7 +418,7 @@ function time_elapsed_string($datetime, $full = false) {
         'i' => 'دقیقه',
         's' => 'ثانیه',
     );
-    
+
     foreach ($string as $k => &$v) {
         if ($diff->$k) {
             $v = $diff->$k . ' ' . $v;
@@ -430,7 +430,7 @@ function time_elapsed_string($datetime, $full = false) {
     if (!$full) {
         $string = array_slice($string, 0, 1);
     }
-    
+
     return $string ? implode(', ', $string) . ' پیش' : 'هم اکنون';
 }
 

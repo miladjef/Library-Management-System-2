@@ -15,7 +15,7 @@ require_once '../classes/jdf.php';
 
 // دریافت آمار 12 ماه گذشته
 $monthly_stats = $conn->prepare("
-    SELECT 
+    SELECT
         DATE_FORMAT(reservation_date, '%Y-%m') as month,
         COUNT(*) as count
     FROM reservations
@@ -32,7 +32,7 @@ $values = [];
 
 foreach ($results as $row) {
     list($year, $month) = explode('-', $row['month']);
-    
+
     // تبدیل به تاریخ شمسی
     $jdate = gregorian_to_jalali((int)$year, (int)$month, 1);
     $persian_months = [
@@ -41,7 +41,7 @@ foreach ($results as $row) {
         7 => 'مهر', 8 => 'آبان', 9 => 'آذر',
         10 => 'دی', 11 => 'بهمن', 12 => 'اسفند'
     ];
-    
+
     $labels[] = $persian_months[$jdate[1]] . ' ' . $jdate[0];
     $values[] = (int)$row['count'];
 }

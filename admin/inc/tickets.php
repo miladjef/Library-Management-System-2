@@ -38,21 +38,21 @@
             <?php get_tickets();
             foreach ($tickets as $ticket) { ?>
                 <tr>
-                    <td><?= $ticket['ticket_id'] ?></td>
-                    <td><?= get_user_name($ticket['user_id']) ?></td>
-                    <td><?= $ticket['ticket_title'] ?></td>
-                    <td><?= $ticket['ticket_description'] ?></td>
+                    <td><?php echo  $ticket['ticket_id'] ?></td>
+                    <td><?php echo  get_user_name($ticket['user_id']) ?></td>
+                    <td><?php echo  $ticket['ticket_title'] ?></td>
+                    <td><?php echo  $ticket['ticket_description'] ?></td>
 
                     <td>
                         <form action="reply_ticket.php" method="POST">
-                            <input type="hidden" value="<?= $ticket['ticket_id'] ?>" name="ticket-id">
+                            <input type="hidden" value="<?php echo  $ticket['ticket_id'] ?>" name="ticket-id">
                             <button class="edit_delete_btn" name="reply_ticket"><img src="assets/img/reply.svg"
                                                                                      alt="پاسخ">
                             </button>
                         </form>
 
                         <form action="#" method="POST" id="delete_ticket_form" onsubmit="return confirm(`از حذف این تیکت اطمینان دارید؟`)">
-                            <input type="hidden" value="<?= $ticket['ticket_id'] ?>" name="ticket-id">
+                            <input type="hidden" value="<?php echo  $ticket['ticket_id'] ?>" name="ticket-id">
                             <button class="edit_delete_btn" name="delete_ticket"><img src="assets/img/delete.svg"
                                                                                       alt="حذف">
                             </button>

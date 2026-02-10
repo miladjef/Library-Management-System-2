@@ -10,7 +10,7 @@ $member = new Member($db);
 if (isset($_GET['action'])) {
     $action = $_GET['action'];
     $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-    
+
     switch ($action) {
         case 'delete':
             if ($id > 0) {
@@ -23,7 +23,7 @@ if (isset($_GET['action'])) {
                 }
             }
             break;
-            
+
         case 'activate':
             if ($id > 0) {
                 try {
@@ -45,7 +45,7 @@ $status = isset($_GET['status']) ? $_GET['status'] : 'all';
 $has_penalty = isset($_GET['has_penalty']) ? $_GET['has_penalty'] : 'all';
 
 // ساخت کوئری
-$sql = "SELECT m.*, 
+$sql = "SELECT m.*,
         COUNT(DISTINCT r.rid) as total_reservations,
         COUNT(DISTINCT CASE WHEN r.status = 'active' THEN r.rid END) as active_reservations,
         SUM(CASE WHEN r.penalty_paid = 0 THEN r.penalty ELSE 0 END) as unpaid_penalties
@@ -82,7 +82,7 @@ $stmt->execute($params);
 $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // آمار کلی
-$stats_sql = "SELECT 
+$stats_sql = "SELECT
               COUNT(*) as total,
               COUNT(CASE WHEN is_active = 1 THEN 1 END) as active,
               COUNT(CASE WHEN is_active = 0 THEN 1 END) as inactive
@@ -114,21 +114,21 @@ $stats = $db->query($stats_sql)->fetch(PDO::FETCH_ASSOC);
     <?php endif; ?>
 
     <?php if (isset($error)): ?>
-        <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
+        <div class="alert alert-error"><?php echo  htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
     <!-- آمار -->
     <div class="stats-container">
         <div class="stat-box">
-            <h3><?= number_format($stats['total']) ?></h3>
+            <h3><?php echo  number_format($stats['total']) ?></h3>
             <p>کل اعضا</p>
         </div>
         <div class="stat-box stat-success">
-            <h3><?= number_format($stats['active']) ?></h3>
+            <h3><?php echo  number_format($stats['active']) ?></h3>
             <p>اعضای فعال</p>
         </div>
         <div class="stat-box stat-warning">
-            <h3><?= number_format($stats['inactive']) ?></h3>
+            <h3><?php echo  number_format($stats['inactive']) ?></h3>
             <p>اعضای غیرفعال</p>
         </div>
     </div>
@@ -137,32 +137,32 @@ $stats = $db->query($stats_sql)->fetch(PDO::FETCH_ASSOC);
     <div class="filters-container">
         <form method="GET" action="" id="filter-form" class="filter-form">
             <div class="filter-group">
-                <input type="text" 
-                       name="search" 
+                <input type="text"
+                       name="search"
                        id="search-member"
-                       placeholder="جستجو (نام، نام خانوادگی، کد ملی، نام کاربری...)" 
-                       value="<?= htmlspecialchars($search) ?>"
+                       placeholder="جستجو (نام، نام خانوادگی، کد ملی، نام کاربری...)"
+                       value="<?php echo  htmlspecialchars($search) ?>"
                        class="search-input">
             </div>
-            
+
             <div class="filter-group">
                 <label for="status-filter">وضعیت:</label>
                 <select name="status" id="status-filter">
-                    <option value="all" <?= $status === 'all' ? 'selected' : '' ?>>همه</option>
-                    <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>فعال</option>
-                    <option value="inactive" <?= $status === 'inactive' ? 'selected' : '' ?>>غیرفعال</option>
+                    <option value="all" <?php echo  $status === 'all' ? 'selected' : '' ?>>همه</option>
+                    <option value="active" <?php echo  $status === 'active' ? 'selected' : '' ?>>فعال</option>
+                    <option value="inactive" <?php echo  $status === 'inactive' ? 'selected' : '' ?>>غیرفعال</option>
                 </select>
             </div>
-            
+
             <div class="filter-group">
                 <label for="penalty-filter">جریمه:</label>
                 <select name="has_penalty" id="penalty-filter">
-                    <option value="all" <?= $has_penalty === 'all' ? 'selected' : '' ?>>همه</option>
-                    <option value="yes" <?= $has_penalty === 'yes' ? 'selected' : '' ?>>دارای جریمه</option>
-                    <option value="no" <?= $has_penalty === 'no' ? 'selected' : '' ?>>بدون جریمه</option>
+                    <option value="all" <?php echo  $has_penalty === 'all' ? 'selected' : '' ?>>همه</option>
+                    <option value="yes" <?php echo  $has_penalty === 'yes' ? 'selected' : '' ?>>دارای جریمه</option>
+                    <option value="no" <?php echo  $has_penalty === 'no' ? 'selected' : '' ?>>بدون جریمه</option>
                 </select>
             </div>
-            
+
             <button type="submit" class="btn btn-primary">اعمال فیلتر</button>
             <a href="members.php" class="btn btn-secondary">پاک کردن</a>
         </form>
@@ -192,28 +192,28 @@ $stats = $db->query($stats_sql)->fetch(PDO::FETCH_ASSOC);
                     </tr>
                 <?php else: ?>
                     <?php foreach ($members as $m): ?>
-                        <tr class="<?= $m['is_active'] ? '' : 'inactive-row' ?>">
-                            <td><?= $m['mid'] ?></td>
+                        <tr class="<?php echo  $m['is_active'] ? '' : 'inactive-row' ?>">
+                            <td><?php echo  $m['mid'] ?></td>
                             <td>
-                                <a href="edit_member.php?id=<?= $m['mid'] ?>" class="member-name">
-                                    <?= htmlspecialchars($m['name'] . ' ' . $m['surname']) ?>
+                                <a href="edit_member.php?id=<?php echo  $m['mid'] ?>" class="member-name">
+                                    <?php echo  htmlspecialchars($m['name'] . ' ' . $m['surname']) ?>
                                 </a>
                             </td>
-                            <td><?= htmlspecialchars($m['username']) ?></td>
-                            <td class="ltr-text"><?= htmlspecialchars($m['national_code']) ?></td>
-                            <td class="ltr-text"><?= htmlspecialchars($m['mobile']) ?></td>
+                            <td><?php echo  htmlspecialchars($m['username']) ?></td>
+                            <td class="ltr-text"><?php echo  htmlspecialchars($m['national_code']) ?></td>
+                            <td class="ltr-text"><?php echo  htmlspecialchars($m['mobile']) ?></td>
                             <td>
                                 <?php if ($m['active_reservations'] > 0): ?>
-                                    <span class="badge badge-info"><?= $m['active_reservations'] ?></span>
+                                    <span class="badge badge-info"><?php echo  $m['active_reservations'] ?></span>
                                 <?php else: ?>
                                     <span class="badge badge-secondary">0</span>
                                 <?php endif; ?>
                             </td>
-                            <td><?= $m['total_reservations'] ?></td>
+                            <td><?php echo  $m['total_reservations'] ?></td>
                             <td>
                                 <?php if ($m['unpaid_penalties'] > 0): ?>
                                     <span class="badge badge-danger">
-                                        <?= number_format($m['unpaid_penalties']) ?> تومان
+                                        <?php echo  number_format($m['unpaid_penalties']) ?> تومان
                                     </span>
                                 <?php else: ?>
                                     <span class="badge badge-success">ندارد</span>
@@ -227,20 +227,20 @@ $stats = $db->query($stats_sql)->fetch(PDO::FETCH_ASSOC);
                                 <?php endif; ?>
                             </td>
                             <td class="action-buttons">
-                                <a href="edit_member.php?id=<?= $m['mid'] ?>" 
-                                   class="btn btn-sm btn-edit" 
+                                <a href="edit_member.php?id=<?php echo  $m['mid'] ?>"
+                                   class="btn btn-sm btn-edit"
                                    title="ویرایش">
                                     ✏️
                                 </a>
                                 <?php if ($m['is_active']): ?>
-                                    <button onclick="confirmDeactivate(<?= $m['mid'] ?>, '<?= htmlspecialchars($m['name']) ?>')" 
-                                            class="btn btn-sm btn-delete" 
+                                    <button onclick="confirmDeactivate(<?php echo  $m['mid'] ?>, '<?php echo  htmlspecialchars($m['name']) ?>')"
+                                            class="btn btn-sm btn-delete"
                                             title="غیرفعال کردن">
                                         🚫
                                     </button>
                                 <?php else: ?>
-                                    <button onclick="confirmActivate(<?= $m['mid'] ?>, '<?= htmlspecialchars($m['name']) ?>')" 
-                                            class="btn btn-sm btn-success" 
+                                    <button onclick="confirmActivate(<?php echo  $m['mid'] ?>, '<?php echo  htmlspecialchars($m['name']) ?>')"
+                                            class="btn btn-sm btn-success"
                                             title="فعال کردن">
                                         ✅
                                     </button>

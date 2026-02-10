@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/includes/security.php';
+?>
 <div class="search-area">
     <form action="search.php" method="GET">
         <input id="search" name="search"

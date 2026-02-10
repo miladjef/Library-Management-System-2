@@ -44,27 +44,27 @@
                 } else {
                     echo "<tr>";
                 } ?>
-                <td><?= $reservation['rid'] ?></td>
-                <td><img src='../assets/img/books/<?= book_img($reservation['book_id']) ?>' width="100px"></td>
-                <td><a href="<?= siteurl() ?>/book.php?bid=<?= $reservation['book_id'] ?>"
-                       target="_blank"> <?= book_name($reservation['book_id']) ?></a></td>
+                <td><?php echo  $reservation['rid'] ?></td>
+                <td><img src='../assets/img/books/<?php echo  book_img($reservation['book_id']) ?>' width="100px"></td>
+                <td><a href="<?php echo  siteurl() ?>/book.php?bid=<?php echo  $reservation['book_id'] ?>"
+                       target="_blank"> <?php echo  book_name($reservation['book_id']) ?></a></td>
                 <td>
-                    <a href="reservations.php?uid=<?= $reservation['user_id'] ?>"> <?= get_user_name($reservation['user_id']) ?></a>
+                    <a href="reservations.php?uid=<?php echo  $reservation['user_id'] ?>"> <?php echo  get_user_name($reservation['user_id']) ?></a>
                 </td>
                 <td><?php if ($reservation['status'] == '2' || $reservation['status'] == '3') {
                         echo jdate("l, j F Y", strtotime($reservation['date']));
                     } else echo "-"; ?></td>
 
-                <td><?= $reservation['duration'] ?> روز</td>
+                <td><?php echo  $reservation['duration'] ?> روز</td>
 
                 <?php
                 if ($reservation['status'] == '2') {
                     if ($return_date > 0) { ?>
-                        <td><?= $return_date ?> روز باقی مانده</td>
+                        <td><?php echo  $return_date ?> روز باقی مانده</td>
                     <?php } elseif ($return_date == 0) { ?>
                         <td>تا پایان امروز</td>
                     <?php } elseif ($return_date < 0) { ?>
-                        <td><?= abs($return_date) ?> روز از موعد تحویل گذشته است</td>
+                        <td><?php echo  abs($return_date) ?> روز از موعد تحویل گذشته است</td>
                     <?php }
                 } else { ?>
                     <td>-</td>
@@ -74,7 +74,7 @@
                 <?php if ($reservation['fine'] == 0) { ?>
                     <td>ندارد</td>
                 <?php } elseif ($reservation['fine'] > 0) { ?>
-                    <th><?= number_format($reservation['fine']) ?> تومان</th>
+                    <th><?php echo  number_format($reservation['fine']) ?> تومان</th>
                 <?php } ?>
 
                 <?php
@@ -93,8 +93,8 @@
                             وضعیت : منتظر تایید
                         </div>
                         <form action="" method="POST">
-                            <input type="hidden" value="<?= $reservation['rid'] ?>" name="rid">
-                            <input type="hidden" value="<?= $reservation['book_id'] ?>" name="bid">
+                            <input type="hidden" value="<?php echo  $reservation['rid'] ?>" name="rid">
+                            <input type="hidden" value="<?php echo  $reservation['book_id'] ?>" name="bid">
                             <button type="submit" class="action-verify" name="confirm-res">
                                 تایید کردن
                             </button>
@@ -106,8 +106,8 @@
                             وضعیت : تایید شده
                         </div>
                         <form action="" method="POST">
-                            <input type="hidden" value="<?= $reservation['rid'] ?>" name="rid">
-                            <input type="hidden" value="<?= $reservation['book_id'] ?>" name="bid">
+                            <input type="hidden" value="<?php echo  $reservation['rid'] ?>" name="rid">
+                            <input type="hidden" value="<?php echo  $reservation['book_id'] ?>" name="bid">
                             <button type="submit" class="action-return" name="return-book">
                                 تحویل گرفتن
                             </button>

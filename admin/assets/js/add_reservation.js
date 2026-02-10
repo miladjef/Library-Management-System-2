@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         html += `<p><strong>کد ملی:</strong> ${member.national_code}</p>`;
                         html += `<p><strong>موبایل:</strong> ${member.mobile}</p>`;
                         html += `<p><strong>امانت‌های فعال:</strong> ${member.active_reservations}</p>`;
-                        
+
                         if (member.unpaid_penalties > 0) {
                             html += `<p class="warning"><strong>⚠️ جریمه معوقه:</strong> ${member.unpaid_penalties.toLocaleString('fa-IR')} تومان</p>`;
                             submitBtn.disabled = true;
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             submitBtn.disabled = false;
                             submitBtn.title = '';
                         }
-                        
+
                         html += '</div>';
                         memberInfoDiv.innerHTML = html;
                     } else {
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         html += `<p><strong>ISBN:</strong> ${book.isbn}</p>`;
                         html += `<p><strong>موجودی کل:</strong> ${book.total_quantity}</p>`;
                         html += `<p><strong>موجودی قابل امانت:</strong> ${book.available_quantity}</p>`;
-                        
+
                         if (book.available_quantity <= 0) {
                             html += '<p class="warning">⚠️ موجودی کافی نیست</p>';
                             submitBtn.disabled = true;
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 submitBtn.disabled = false;
                             }
                         }
-                        
+
                         html += '</div>';
                         bookInfoDiv.innerHTML = html;
                     } else {
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('لطفاً تمام فیلدها را پر کنید');
                 return false;
             }
-            
+
             if (submitBtn.disabled) {
                 e.preventDefault();
                 alert('امکان ثبت امانت وجود ندارد. لطفاً هشدارها را بررسی کنید.');

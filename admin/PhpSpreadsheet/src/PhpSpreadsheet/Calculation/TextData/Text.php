@@ -192,7 +192,7 @@ class Text
         $valueSet = Functions::flattenArray($delimiter);
 
         if (is_array($delimiter) && count($valueSet) > 1) {
-            /** @var array<?string> $valueSet */
+            /** @var array<?php string> $valueSet */
             $quotedDelimiters = array_map(
                 fn (?string $delimiter): string => preg_quote($delimiter ?? '', '/'),
                 $valueSet

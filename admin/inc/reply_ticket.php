@@ -13,12 +13,12 @@
                 پاسخ به تیکت
             </div>
             <div class="ticket-info">
-                <h3>موضوع تیکت : <?= $ticket['ticket_title'] ?></h3>
+                <h3>موضوع تیکت : <?php echo  $ticket['ticket_title'] ?></h3>
                 <div class="ticket-details">
-                    <h6> ارسال کننده: <?= get_user_name($ticket['user_id']) ?></h6>
-                    <h6> تاریخ: <?= $ticket['date'] ?></h6>
+                    <h6> ارسال کننده: <?php echo  get_user_name($ticket['user_id']) ?></h6>
+                    <h6> تاریخ: <?php echo  $ticket['date'] ?></h6>
                 </div>
-                <p class="ticket-description"><?= $ticket['ticket_description'] ?></p>
+                <p class="ticket-description"><?php echo  $ticket['ticket_description'] ?></p>
 
                 <?php get_replies($ticket_id);
                 foreach ($replies as $reply) {
@@ -26,13 +26,13 @@
                         ?>
                         <div class="user-reply">
                             <h4>پاسخ یوزر: </h4>
-                            <p><?= $reply['reply_description'] ?></p>
+                            <p><?php echo  $reply['reply_description'] ?></p>
                         </div>
                     <?php } elseif ($reply['type'] == "admin") { ?>
 
                         <div class="admin-reply">
                             <h4>پاسخ شما (مدیر): </h4>
-                            <p><?= $reply['reply_description'] ?></p>
+                            <p><?php echo  $reply['reply_description'] ?></p>
                         </div>
                     <?php }
                 } ?>
@@ -41,7 +41,7 @@
 
                     <label class="ticket-reply-label" for="ticket-reply-desc"> پاسخ: </label>
                     <textarea name="ticket-reply" id="ticket-reply-desc" cols="30" rows="10"></textarea>
-                    <input type="hidden" name="ticket-id" value="<?= $ticket_id ?>">
+                    <input type="hidden" name="ticket-id" value="<?php echo  $ticket_id ?>">
                         <button type="submit" class="submit-ticket-btn" name="submit_reply">ثبت پاسخ</button>
                     <a href="tickets.php" class="back-button">بازگشت به لیست تیکت ها</a>
 

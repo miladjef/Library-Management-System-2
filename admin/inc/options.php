@@ -10,7 +10,7 @@ $error = false;
 // پردازش فرم ذخیره تنظیمات
 if (isset($_POST['save_settings'])) {
     $updates = [];
-    
+
     // تنظیمات عمومی و امانت
     if (isset($_POST['max_borrow_days'])) {
         $updates['max_borrow_days'] = intval($_POST['max_borrow_days']);
@@ -33,11 +33,11 @@ if (isset($_POST['save_settings'])) {
     if (isset($_POST['admin_email'])) {
         $updates['admin_email'] = trim($_POST['admin_email']);
     }
-    
+
     // تنظیمات اعلان‌ها (غیرفعال برای استفاده شخصی)
     $updates['enable_email_notifications'] = '0';
     $updates['enable_sms_notifications'] = '0';
-    
+
     if ($settings->updateMultiple($updates)) {
         $success = true;
     } else {
@@ -67,14 +67,14 @@ foreach ($current_settings as $setting) {
         <i class="fas fa-cog"></i>
         تنظیمات سیستم
     </div>
-    
+
     <?php if ($success): ?>
         <div class="success-notification" id="successMsg">
             تنظیمات با موفقیت ذخیره شد.
             <span onclick="document.getElementById('successMsg').style.display='none'">&times;</span>
         </div>
     <?php endif; ?>
-    
+
     <?php if ($error): ?>
         <div class="error-notification" id="errorMsg">
             خطا در ذخیره تنظیمات. لطفا دوباره تلاش کنید.
@@ -83,30 +83,30 @@ foreach ($current_settings as $setting) {
     <?php endif; ?>
 
     <form method="POST" class="settings-form">
-        
+
         <!-- تنظیمات عمومی -->
         <div class="settings-section">
             <h3 class="section-title">
                 <i class="fas fa-info-circle"></i>
                 تنظیمات عمومی
             </h3>
-            
+
             <div class="form-group">
                 <label for="library_name">نام کتابخانه:</label>
-                <input type="text" 
-                       name="library_name" 
+                <input type="text"
+                       name="library_name"
                        id="library_name"
-                       value="<?= htmlspecialchars(Settings::get('library_name')) ?>"
+                       value="<?php echo  htmlspecialchars(Settings::get('library_name')) ?>"
                        class="form-control">
                 <small class="form-hint">نام کتابخانه شخصی شما</small>
             </div>
-            
+
             <div class="form-group">
                 <label for="admin_email">ایمیل مدیر:</label>
-                <input type="email" 
-                       name="admin_email" 
+                <input type="email"
+                       name="admin_email"
                        id="admin_email"
-                       value="<?= htmlspecialchars(Settings::get('admin_email')) ?>"
+                       value="<?php echo  htmlspecialchars(Settings::get('admin_email')) ?>"
                        class="form-control">
                 <small class="form-hint">ایمیل شخصی شما برای دریافت گزارشات</small>
             </div>
@@ -118,53 +118,53 @@ foreach ($current_settings as $setting) {
                 <i class="fas fa-book-reader"></i>
                 تنظیمات امانت
             </h3>
-            
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="max_borrow_days">مدت امانت پیش‌فرض (روز):</label>
-                    <input type="number" 
-                           name="max_borrow_days" 
+                    <input type="number"
+                           name="max_borrow_days"
                            id="max_borrow_days"
-                           value="<?= Settings::get('max_borrow_days') ?>"
-                           min="1" 
+                           value="<?php echo  Settings::get('max_borrow_days') ?>"
+                           min="1"
                            max="90"
                            class="form-control">
                     <small class="form-hint">مدت زمان پیش‌فرض برای امانت کتاب</small>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="max_active_borrows">حداکثر امانت همزمان:</label>
-                    <input type="number" 
-                           name="max_active_borrows" 
+                    <input type="number"
+                           name="max_active_borrows"
                            id="max_active_borrows"
-                           value="<?= Settings::get('max_active_borrows') ?>"
-                           min="1" 
+                           value="<?php echo  Settings::get('max_active_borrows') ?>"
+                           min="1"
                            max="10"
                            class="form-control">
                     <small class="form-hint">تعداد کتاب‌هایی که می‌توان به صورت همزمان امانت گرفت</small>
                 </div>
             </div>
-            
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="max_extensions">حداکثر تعداد تمدید:</label>
-                    <input type="number" 
-                           name="max_extensions" 
+                    <input type="number"
+                           name="max_extensions"
                            id="max_extensions"
-                           value="<?= Settings::get('max_extensions') ?>"
-                           min="0" 
+                           value="<?php echo  Settings::get('max_extensions') ?>"
+                           min="0"
                            max="5"
                            class="form-control">
                     <small class="form-hint">تعداد دفعاتی که می‌توان امانت را تمدید کرد</small>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="extension_days">مدت تمدید (روز):</label>
-                    <input type="number" 
-                           name="extension_days" 
+                    <input type="number"
+                           name="extension_days"
                            id="extension_days"
-                           value="<?= Settings::get('extension_days') ?>"
-                           min="1" 
+                           value="<?php echo  Settings::get('extension_days') ?>"
+                           min="1"
                            max="30"
                            class="form-control">
                     <small class="form-hint">مدت زمان اضافه شده در هر تمدید</small>
@@ -178,19 +178,19 @@ foreach ($current_settings as $setting) {
                 <i class="fas fa-money-bill-wave"></i>
                 تنظیمات مالی
             </h3>
-            
+
             <div class="form-group">
                 <label for="daily_penalty_amount">مبلغ جریمه روزانه (تومان):</label>
-                <input type="number" 
-                       name="daily_penalty_amount" 
+                <input type="number"
+                       name="daily_penalty_amount"
                        id="daily_penalty_amount"
-                       value="<?= Settings::get('daily_penalty_amount') ?>"
-                       min="0" 
+                       value="<?php echo  Settings::get('daily_penalty_amount') ?>"
+                       min="0"
                        step="1000"
                        class="form-control">
                 <small class="form-hint">مبلغ جریمه برای هر روز تاخیر در بازگشت کتاب</small>
                 <div class="amount-preview">
-                    پیش‌نمایش: <strong><?= number_format(Settings::get('daily_penalty_amount')) ?></strong> تومان به ازای هر روز
+                    پیش‌نمایش: <strong><?php echo  number_format(Settings::get('daily_penalty_amount')) ?></strong> تومان به ازای هر روز
                 </div>
             </div>
         </div>
@@ -202,7 +202,7 @@ foreach ($current_settings as $setting) {
                 تنظیمات اعلان‌ها
                 <span class="badge-disabled">غیرفعال</span>
             </h3>
-            
+
             <div class="info-box">
                 <i class="fas fa-info-circle"></i>
                 <p>
@@ -210,14 +210,14 @@ foreach ($current_settings as $setting) {
                     در صورت نیاز می‌توانید به صورت دستی از طریق پنل مدیریتی، اطلاع‌رسانی‌های لازم را انجام دهید.
                 </p>
             </div>
-            
+
             <div class="form-group disabled">
                 <label>
                     <input type="checkbox" disabled checked style="opacity: 0.5;">
                     اعلان‌های ایمیل (غیرفعال)
                 </label>
             </div>
-            
+
             <div class="form-group disabled">
                 <label>
                     <input type="checkbox" disabled style="opacity: 0.5;">
@@ -232,9 +232,9 @@ foreach ($current_settings as $setting) {
                 <i class="fas fa-save"></i>
                 ذخیره تنظیمات
             </button>
-            
-            <button type="submit" 
-                    name="reset_defaults" 
+
+            <button type="submit"
+                    name="reset_defaults"
                     class="btn btn-secondary"
                     onclick="return confirm('آیا مطمئن هستید که می‌خواهید تنظیمات را به حالت پیش‌فرض بازگردانید؟')">
                 <i class="fas fa-undo"></i>
@@ -249,11 +249,11 @@ foreach ($current_settings as $setting) {
             <i class="fas fa-server"></i>
             اطلاعات سیستم
         </h3>
-        
+
         <div class="info-grid">
             <div class="info-item">
                 <span class="info-label">نسخه PHP:</span>
-                <span class="info-value"><?= phpversion() ?></span>
+                <span class="info-value"><?php echo  phpversion() ?></span>
             </div>
             <div class="info-item">
                 <span class="info-label">نسخه MySQL:</span>
@@ -267,9 +267,9 @@ foreach ($current_settings as $setting) {
                 <span class="info-label">حجم دیتابیس:</span>
                 <span class="info-value"><?php
                     $stmt = $db->getConnection()->query("
-                        SELECT 
+                        SELECT
                             ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) as size_mb
-                        FROM information_schema.TABLES 
+                        FROM information_schema.TABLES
                         WHERE table_schema = '" . DB_NAME . "'
                     ");
                     $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -278,7 +278,7 @@ foreach ($current_settings as $setting) {
             </div>
             <div class="info-item">
                 <span class="info-label">آخرین به‌روزرسانی:</span>
-                <span class="info-value"><?= jdate('Y/m/d H:i') ?></span>
+                <span class="info-value"><?php echo  jdate('Y/m/d H:i') ?></span>
             </div>
         </div>
     </div>
@@ -526,11 +526,11 @@ foreach ($current_settings as $setting) {
     .form-row {
         grid-template-columns: 1fr;
     }
-    
+
     .form-actions {
         flex-direction: column;
     }
-    
+
     .btn {
         width: 100%;
         justify-content: center;
@@ -553,25 +553,25 @@ document.querySelector('.settings-form').addEventListener('submit', function(e) 
     const maxBorrowDays = parseInt(document.getElementById('max_borrow_days').value);
     const maxActiveBorrows = parseInt(document.getElementById('max_active_borrows').value);
     const dailyPenalty = parseInt(document.getElementById('daily_penalty_amount').value);
-    
+
     if (maxBorrowDays < 1 || maxBorrowDays > 90) {
         alert('مدت امانت باید بین 1 تا 90 روز باشد');
         e.preventDefault();
         return false;
     }
-    
+
     if (maxActiveBorrows < 1 || maxActiveBorrows > 10) {
         alert('تعداد امانت همزمان باید بین 1 تا 10 باشد');
         e.preventDefault();
         return false;
     }
-    
+
     if (dailyPenalty < 0) {
         alert('مبلغ جریمه نمی‌تواند منفی باشد');
         e.preventDefault();
         return false;
     }
-    
+
     return true;
 });
 </script>

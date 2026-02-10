@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/includes/security.php';
+
 require_once '../config/config.php';
 require_once '../classes/Database.php';
 require_once '../classes/BookAPIHandler.php';
@@ -52,7 +54,7 @@ if (!preg_match('/^(?:\d{10}|\d{13})$/', $isbn)) {
 try {
     $apiHandler = new BookAPIHandler();
     $bookData = $apiHandler->searchByISBN($isbn);
-    
+
     if ($bookData) {
         echo json_encode([
             'success' => true,

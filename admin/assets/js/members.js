@@ -1,6 +1,6 @@
 // admin/assets/js/members.js
 document.addEventListener('DOMContentLoaded', function() {
-    
+
     // جستجوی زنده
     const searchInput = document.getElementById('search-member');
     if (searchInput) {
@@ -16,13 +16,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // فیلترهای خودکار
     const statusFilter = document.getElementById('status-filter');
     const penaltyFilter = document.getElementById('penalty-filter');
-    
+
     if (statusFilter) {
         statusFilter.addEventListener('change', function() {
             document.getElementById('filter-form').submit();
         });
     }
-    
+
     if (penaltyFilter) {
         penaltyFilter.addEventListener('change', function() {
             document.getElementById('filter-form').submit();

@@ -1,6 +1,6 @@
 // admin/assets/js/reservations.js
 document.addEventListener('DOMContentLoaded', function() {
-    
+
     // تایید بازگشت کتاب
     window.confirmReturn = function(reservationId, bookTitle) {
         if (confirm(`آیا از بازگشت کتاب "${bookTitle}" اطمینان دارید؟`)) {
@@ -20,13 +20,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (filterForm) {
         const statusFilter = document.getElementById('status-filter');
         const overdueFilter = document.getElementById('overdue-filter');
-        
+
         if (statusFilter) {
             statusFilter.addEventListener('change', function() {
                 filterForm.submit();
             });
         }
-        
+
         if (overdueFilter) {
             overdueFilter.addEventListener('change', function() {
                 filterForm.submit();
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
             const query = this.value;
-            
+
             searchTimeout = setTimeout(() => {
                 if (query.length >= 2 || query.length === 0) {
                     filterForm.submit();
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     const modal = document.getElementById('detail-modal');
                     const content = document.getElementById('modal-detail-content');
-                    
+
                     let html = '<div class="reservation-detail">';
                     html += `<h3>جزئیات امانت #${data.reservation.id}</h3>`;
                     html += '<div class="detail-section">';
@@ -84,15 +84,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     html += `<p><strong>تاریخ امانت:</strong> ${data.reservation.borrow_date_persian}</p>`;
                     html += `<p><strong>تاریخ برگشت:</strong> ${data.reservation.return_date_persian}</p>`;
                     html += `<p><strong>وضعیت:</strong> ${data.reservation.status_label}</p>`;
-                    
+
                     if (data.reservation.penalty > 0) {
                         html += `<p class="warning"><strong>جریمه:</strong> ${data.reservation.penalty.toLocaleString('fa-IR')} تومان</p>`;
                         html += `<p><strong>وضعیت پرداخت:</strong> ${data.reservation.penalty_paid ? 'پرداخت شده' : 'پرداخت نشده'}</p>`;
                     }
-                    
+
                     html += '</div>';
                     html += '</div>';
-                    
+
                     content.innerHTML = html;
                     modal.style.display = 'block';
                 } else {
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
             modal.style.display = 'none';
         });
     }
-    
+
     window.addEventListener('click', function(event) {
         if (event.target === modal) {
             modal.style.display = 'none';
@@ -129,7 +129,7 @@ function highlightOverdueReservations() {
     rows.forEach(row => {
         const returnDate = row.dataset.returnDate;
         const today = new Date().toISOString().split('T')[0];
-        
+
         if (returnDate < today) {
             row.classList.add('overdue-row');
         }

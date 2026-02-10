@@ -8,7 +8,7 @@ class CSRF {
     private static $tokenKey = 'csrf_token';
     private static $tokenTimeKey = 'csrf_token_time';
     private static $tokensKey = 'csrf_tokens'; // برای multiple forms
-    
+
     /**
      * تولید توکن CSRF
      */
@@ -16,27 +16,27 @@ class CSRF {
         if (!isset($_SESSION)) {
             session_start();
         }
-        
+
         // تولید توکن جدید
         $token = bin2hex(random_bytes(32));
         $time = time();
-        
+
         // ذخیره توکن
         if (!isset($_SESSION[self::$tokensKey])) {
             $_SESSION[self::$tokensKey] = [];
         }
-        
+
         $_SESSION[self::$tokensKey][$formName] = [
             'token' => $token,
             'time' => $time
         ];
-        
+
         // پاکسازی توکن‌های قدیمی
         self::cleanOldTokens();
-        
+
         return $token;
     }
-    
+
     /**
      * اعتبارسنجی توکن CSRF
      */
@@ -44,24 +44,24 @@ class CSRF {
         if (!isset($_SESSION)) {
             session_start();
         }
-        
+
         // چک کردن وجود توکن
         if (!isset($_SESSION[self::$tokensKey][$formName])) {
             logWarning('CSRF token not found', ['form' => $formName]);
             return false;
         }
-        
+
         $storedData = $_SESSION[self::$tokensKey][$formName];
         $storedToken = $storedData['token'];
         $tokenTime = $storedData['time'];
-        
+
         // چک کردن انقضای توکن
         if ((time() - $tokenTime) > CSRF_TOKEN_EXPIRE) {
             logWarning('CSRF token expired', ['form' => $formName]);
             unset($_SESSION[self::$tokensKey][$formName]);
             return false;
         }
-        
+
         // مقایسه امن توکن‌ها
         if (!hash_equals($storedToken, $token)) {
             logWarning('CSRF token mismatch', [
@@ -70,13 +70,13 @@ class CSRF {
             ]);
             return false;
         }
-        
+
         // حذف توکن بعد از استفاده (One-Time Token)
         unset($_SESSION[self::$tokensKey][$formName]);
-        
+
         return true;
     }
-    
+
     /**
      * پاکسازی توکن‌های قدیمی
      */
@@ -84,16 +84,16 @@ class CSRF {
         if (!isset($_SESSION[self::$tokensKey])) {
             return;
         }
-        
+
         $currentTime = time();
-        
+
         foreach ($_SESSION[self::$tokensKey] as $formName => $data) {
             if (($currentTime - $data['time']) > CSRF_TOKEN_EXPIRE) {
                 unset($_SESSION[self::$tokensKey][$formName]);
             }
         }
     }
-    
+
     /**
      * دریافت فیلد HTML برای فرم
      */
@@ -105,7 +105,7 @@ class CSRF {
             htmlspecialchars($formName, ENT_QUOTES, 'UTF-8')
         );
     }
-    
+
     /**
      * دریافت Meta Tag برای AJAX
      */
@@ -116,7 +116,7 @@ class CSRF {
             htmlspecialchars($token, ENT_QUOTES, 'UTF-8')
         );
     }
-    
+
     /**
      * اعتبارسنجی Request (Middleware)
      */
@@ -126,10 +126,10 @@ class CSRF {
         if (!in_array($method, ['POST', 'PUT', 'DELETE', 'PATCH'])) {
             return true;
         }
-        
+
         // دریافت توکن از Request
         $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
-        
+
         if (!$token) {
             logWarning('CSRF token missing', [
                 'method' => $method,
@@ -142,7 +142,7 @@ class CSRF {
                 'message' => 'خطای امنیتی: توکن CSRF یافت نشد'
             ]));
         }
-        
+
         if (!self::validateToken($token, $formName)) {
             http_response_code(403);
             die(json_encode([
@@ -150,10 +150,10 @@ class CSRF {
                 'message' => 'خطای امنیتی: توکن CSRF نامعتبر است'
             ]));
         }
-        
+
         return true;
     }
-    
+
     /**
      * حذف تمام توکن‌ها (برای Logout)
      */
@@ -162,7 +162,7 @@ class CSRF {
             unset($_SESSION[self::$tokensKey]);
         }
     }
-    
+
     /**
      * دریافت توکن برای AJAX
      */

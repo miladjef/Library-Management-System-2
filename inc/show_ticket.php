@@ -14,20 +14,20 @@ if (is_logged_in()) {
 
             <div class="tickets">
                 <div class="ticket-detail">
-                    <div class="ticket-title"> موضوع تیکت: <?= $ticket['ticket_title'] ?></div>
-                    <div class="ticket-description"><?= $ticket['ticket_description'] ?></div>
+                    <div class="ticket-title"> موضوع تیکت: <?php echo  $ticket['ticket_title'] ?></div>
+                    <div class="ticket-description"><?php echo  $ticket['ticket_description'] ?></div>
                     <?php get_replies($ticket_id);
                     foreach ($replies as $reply) {
                         if ($reply['type'] == "user") {
                             ?>
                             <div class="user-reply">
                                 <h4>پاسخ شما: </h4>
-                                <p><?= $reply['reply_description']?></p>
+                                <p><?php echo  $reply['reply_description']?></p>
                             </div>
                         <?php }elseif($reply['type'] == "admin"){ ?>
                         <div class="admin-reply">
                             <h4>پاسخ مدیر: </h4>
-                            <p><?= $reply['reply_description']?></p>
+                            <p><?php echo  $reply['reply_description']?></p>
                         </div>
 
                     <?php }} ?>
@@ -35,7 +35,7 @@ if (is_logged_in()) {
 
                         <label class="ticket-reply-label" for="ticket-reply-desc"> پاسخ: </label>
                         <textarea name="ticket-reply" id="ticket-reply-desc" cols="30" rows="10"></textarea>
-                        <input type="hidden" name="ticket-id" value="<?= $ticket_id ?>">
+                        <input type="hidden" name="ticket-id" value="<?php echo  $ticket_id ?>">
                         <div class="ticket-submits">
                             <button type="submit" class="submit-ticket-btn" name="submit_reply">ثبت پاسخ</button>
                             <a href="tickets.php" class="back-button">بازگشت به لیست تیکت ها</a>

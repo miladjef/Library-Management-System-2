@@ -42,10 +42,10 @@
             <?php get_all_users();
             foreach ($members as $member) { ?>
                 <tr>
-                    <td><?= $member['mid'] ?></td>
-                    <td><?= $member['name'] ?></td>
-                    <td><?= $member['surname'] ?></td>
-                    <td><?= $member['username'] ?></td>
+                    <td><?php echo  $member['mid'] ?></td>
+                    <td><?php echo  $member['name'] ?></td>
+                    <td><?php echo  $member['surname'] ?></td>
+                    <td><?php echo  $member['username'] ?></td>
                     <td><?php if ($member['fine'] > 0) {
                             echo number_format($member['fine']) . ' تومان ';
                         } else {
@@ -55,7 +55,7 @@
 
                     <td>
                         <form action="edit_member.php" method="POST">
-                            <input type="hidden" value="<?= $member['mid'] ?>" name="member-id">
+                            <input type="hidden" value="<?php echo  $member['mid'] ?>" name="member-id">
                             <button class="edit_delete_btn" name="edit_member"><img src="assets/img/edit.svg"
                                                                                     alt="ویرایش">
                             </button>
@@ -64,7 +64,7 @@
 
                             <form action="#" method="POST" id="delete_member_form"
                                   onsubmit="return confirm(`از حذف این کاربر اطمینان دارید؟`)">
-                                <input type="hidden" value="<?= $member['mid'] ?>" name="member-id">
+                                <input type="hidden" value="<?php echo  $member['mid'] ?>" name="member-id">
                                 <button class="edit_delete_btn" name="delete_member"><img src="assets/img/delete.svg"
                                                                                           alt="حذف">
                                 </button>

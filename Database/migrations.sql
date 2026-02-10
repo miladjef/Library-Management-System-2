@@ -26,7 +26,7 @@ ON DUPLICATE KEY UPDATE `setting_value` = VALUES(`setting_value`);
 -- =========================================
 -- 2. به‌روزرسانی جدول کتاب‌ها
 -- =========================================
-ALTER TABLE `books` 
+ALTER TABLE `books`
 ADD COLUMN IF NOT EXISTS `isbn` VARCHAR(20) UNIQUE AFTER `book_name`,
 ADD COLUMN IF NOT EXISTS `publisher` VARCHAR(255) AFTER `author`,
 ADD COLUMN IF NOT EXISTS `publish_year` YEAR AFTER `publisher`,
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS `book_reviews` (
 -- 8. ویوی آماری برای داشبورد
 -- =========================================
 CREATE OR REPLACE VIEW `dashboard_stats` AS
-SELECT 
+SELECT
     (SELECT COUNT(*) FROM books) AS total_books,
     (SELECT SUM(book_quantity) FROM books) AS total_book_copies,
     (SELECT COUNT(*) FROM members WHERE is_active = 1) AS active_members,
@@ -176,16 +176,16 @@ DELIMITER $$
 CREATE PROCEDURE IF NOT EXISTS `calculate_overdue_penalties`()
 BEGIN
     DECLARE daily_penalty DECIMAL(10,2);
-    
+
     -- خواندن مبلغ جریمه روزانه از تنظیمات
     SELECT CAST(setting_value AS DECIMAL(10,2)) INTO daily_penalty
     FROM system_settings
     WHERE setting_key = 'daily_penalty_amount';
-    
+
     -- به‌روزرسانی جریمه‌های تاخیری
     UPDATE reservations
     SET penalty = DATEDIFF(CURDATE(), return_date) * daily_penalty
-    WHERE status = 'active' 
+    WHERE status = 'active'
     AND return_date < CURDATE()
     AND penalty < (DATEDIFF(CURDATE(), return_date) * daily_penalty);
 END$$
@@ -208,13 +208,13 @@ CALL calculate_overdue_penalties();
 -- =========================================
 
 -- افزودن وضعیت پیش‌فرض برای رزروهای قدیمی
-UPDATE reservations 
-SET status = 'active' 
+UPDATE reservations
+SET status = 'active'
 WHERE status IS NULL OR status = '';
 
 -- فعال کردن تمام اعضای موجود
-UPDATE members 
-SET is_active = 1 
+UPDATE members
+SET is_active = 1
 WHERE is_active IS NULL;
 
 -- =========================================

@@ -20,18 +20,18 @@ if (isset($_SESSION['userid'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= isset($title) ? $title . ' - ' : '' ?>کتابخانه مجازی</title>
-    
+    <title><?php echo  isset($title) ? $title . ' - ' : '' ?>کتابخانه مجازی</title>
+
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Vazir:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/user.css">
-    
+
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -41,7 +41,7 @@ if (isset($_SESSION['userid'])) {
         <div class="nav-container">
             <!-- Logo -->
             <div class="nav-logo">
-                <a href="<?= siteurl() ?>">
+                <a href="<?php echo  siteurl() ?>">
                     <i class="fas fa-book"></i>
                     <span>کتابخانه مجازی</span>
                 </a>
@@ -49,29 +49,29 @@ if (isset($_SESSION['userid'])) {
 
             <!-- Menu Items -->
             <div class="nav-menu" id="nav-menu">
-                <a href="<?= siteurl() ?>" class="nav-link">
+                <a href="<?php echo  siteurl() ?>" class="nav-link">
                     <i class="fas fa-home"></i>
                     خانه
                 </a>
-                <a href="<?= siteurl() ?>/books.php" class="nav-link">
+                <a href="<?php echo  siteurl() ?>/books.php" class="nav-link">
                     <i class="fas fa-book-open"></i>
                     کتاب‌ها
                 </a>
-                <a href="<?= siteurl() ?>/categories.php" class="nav-link">
+                <a href="<?php echo  siteurl() ?>/categories.php" class="nav-link">
                     <i class="fas fa-list"></i>
                     دسته‌بندی‌ها
                 </a>
-                
+
                 <?php if ($user_logged_in): ?>
-                    <a href="<?= siteurl() ?>/profile.php" class="nav-link">
+                    <a href="<?php echo  siteurl() ?>/profile.php" class="nav-link">
                         <i class="fas fa-user"></i>
                         پروفایل من
                     </a>
-                    <a href="<?= siteurl() ?>/my-reservations.php" class="nav-link">
+                    <a href="<?php echo  siteurl() ?>/my-reservations.php" class="nav-link">
                         <i class="fas fa-history"></i>
                         امانت‌های من
                     </a>
-                    <a href="<?= siteurl() ?>/tickets.php" class="nav-link">
+                    <a href="<?php echo  siteurl() ?>/tickets.php" class="nav-link">
                         <i class="fas fa-support"></i>
                         پشتیبانی
                     </a>
@@ -84,7 +84,7 @@ if (isset($_SESSION['userid'])) {
                     <div class="user-dropdown">
                         <button class="user-btn" onclick="toggleUserMenu()">
                             <i class="fas fa-user-circle"></i>
-                            <span><?= $current_user['name'] . ' ' . $current_user['surname'] ?></span>
+                            <span><?php echo  $current_user['name'] . ' ' . $current_user['surname'] ?></span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="user-menu" id="user-menu">

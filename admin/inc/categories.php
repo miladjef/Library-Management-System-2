@@ -41,17 +41,17 @@
             <?php get_categories();
             foreach ($cats as $cat) { ?>
                 <tr>
-                    <td><?= $cat['cat_id'] ?></td>
-                    <td><?= $cat['cat_name'] ?></td>
+                    <td><?php echo  $cat['cat_id'] ?></td>
+                    <td><?php echo  $cat['cat_name'] ?></td>
                     <td>
                         <form action="edit_category.php" method="POST">
-                            <input type="hidden" value="<?= $cat['cat_id'] ?>" name="cat_id">
+                            <input type="hidden" value="<?php echo  $cat['cat_id'] ?>" name="cat_id">
                             <button class="edit_delete_btn" name="edit_cat"><img src="assets/img/edit.svg" alt="ویرایش">
                             </button>
                         </form>
 
                         <form action="#" method="POST" id="delete_cat_form" onsubmit="return confirm(`از حذف این دسته بندی اطمینان دارید؟`)">
-                            <input type="hidden" value="<?= $cat['cat_id'] ?>" name="cat_id">
+                            <input type="hidden" value="<?php echo  $cat['cat_id'] ?>" name="cat_id">
                             <button class="edit_delete_btn" name="delete_cat"><img src="assets/img/delete.svg"
                                                                                    alt="حذف">
                             </button>

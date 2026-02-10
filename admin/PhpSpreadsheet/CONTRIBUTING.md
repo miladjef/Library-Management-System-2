@@ -6,7 +6,7 @@ If you would like to contribute, here are some notes and guidelines:
  - If you are going to submit a pull request, please fork from `master`, and submit your pull request back as a fix/feature branch referencing the GitHub issue number
  - Install (development) dependencies by running `composer install` inside your PhpSpreadsheet clone.
  - The code must work with all PHP versions that we support.
-   - You can call `composer versions` to test version compatibility. 
+   - You can call `composer versions` to test version compatibility.
  - Code style should be maintained.
    - `composer style` will identify any issues with Coding Style.
    - `composer fix` will fix most issues with Coding Style.

@@ -15,14 +15,14 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 // پردازش آپلود فایل
 if (isset($_POST['import_books']) && isset($_FILES['excel_file'])) {
     $file = $_FILES['excel_file'];
-    
+
     // بررسی خطا
     if ($file['error'] !== UPLOAD_ERR_OK) {
         $error = 'خطا در آپلود فایل';
     } else {
         $allowed_extensions = ['xlsx', 'xls', 'csv'];
         $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-        
+
         if (!in_array(strtolower($file_extension), $allowed_extensions)) {
             $error = 'فقط فایل‌های Excel مجاز است';
         } else {
@@ -30,36 +30,36 @@ if (isset($_POST['import_books']) && isset($_FILES['excel_file'])) {
                 $spreadsheet = IOFactory::load($file['tmp_name']);
                 $sheet = $spreadsheet->getActiveSheet();
                 $data = $sheet->toArray();
-                
+
                 $db = Database::getInstance();
                 $conn = $db->getConnection();
-                
+
                 $success_count = 0;
                 $error_count = 0;
                 $errors = [];
-                
+
                 // شروع از ردیف 2 (ردیف 1 هدر است)
                 for ($i = 1; $i < count($data); $i++) {
                     $row = $data[$i];
-                    
+
                     // بررسی خالی نبودن ردیف
                     if (empty($row[0])) continue;
-                    
+
                     try {
                         $stmt = $conn->prepare("
-                            INSERT INTO books 
-                            (book_name, author, publisher, publish_year, isbn, 
+                            INSERT INTO books
+                            (book_name, author, publisher, publish_year, isbn,
                              category_id, count, description, image, created_at)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
                         ");
-                        
+
                         // دریافت شناسه دسته‌بندی
                         $cat_stmt = $conn->prepare("
                             SELECT cat_id FROM categories WHERE cat_name = ? LIMIT 1
                         ");
                         $cat_stmt->execute([$row[5]]);
                         $category = $cat_stmt->fetch(PDO::FETCH_ASSOC);
-                        
+
                         if (!$category) {
                             // ایجاد دسته‌بندی جدید
                             $insert_cat = $conn->prepare("
@@ -70,7 +70,7 @@ if (isset($_POST['import_books']) && isset($_FILES['excel_file'])) {
                         } else {
                             $category_id = $category['cat_id'];
                         }
-                        
+
                         $result = $stmt->execute([
                             $row[0],  // نام کتاب
                             $row[1],  // نویسنده
@@ -82,25 +82,25 @@ if (isset($_POST['import_books']) && isset($_FILES['excel_file'])) {
                             $row[7] ?? null,  // توضیحات
                             'default.jpg'     // تصویر پیش‌فرض
                         ]);
-                        
+
                         if ($result) {
                             $success_count++;
                         } else {
                             $error_count++;
                             $errors[] = "ردیف " . ($i + 1) . ": خطا در ذخیره";
                         }
-                        
+
                     } catch (PDOException $e) {
                         $error_count++;
                         $errors[] = "ردیف " . ($i + 1) . ": " . $e->getMessage();
                     }
                 }
-                
+
                 $success_message = "عملیات با موفقیت انجام شد. $success_count کتاب اضافه شد";
                 if ($error_count > 0) {
                     $success_message .= " و $error_count خطا رخ داد";
                 }
-                
+
             } catch (Exception $e) {
                 $error = 'خطا در خواندن فایل: ' . $e->getMessage();
             }
@@ -115,44 +115,44 @@ include "inc/header.php";
     <div class="page-title">
         وارد کردن کتاب‌های دسته‌جمعی
     </div>
-    
+
     <a href="books.php" class="back-button">
         <i class="fas fa-arrow-right"></i>
         بازگشت به لیست کتاب‌ها
     </a>
-    
+
     <?php if (isset($success_message)): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            <?= $success_message ?>
-            
+            <?php echo  $success_message ?>
+
             <?php if (!empty($errors)): ?>
                 <details style="margin-top: 10px;">
-                    <summary>مشاهده خطاها (<?= count($errors) ?>)</summary>
+                    <summary>مشاهده خطاها (<?php echo  count($errors) ?>)</summary>
                     <ul style="margin-top: 10px;">
                         <?php foreach (array_slice($errors, 0, 10) as $err): ?>
-                            <li><?= htmlspecialchars($err) ?></li>
+                            <li><?php echo  htmlspecialchars($err) ?></li>
                         <?php endforeach; ?>
                     </ul>
                 </details>
             <?php endif; ?>
         </div>
     <?php endif; ?>
-    
+
     <?php if (isset($error)): ?>
         <div class="alert alert-error">
             <i class="fas fa-exclamation-triangle"></i>
-            <?= $error ?>
+            <?php echo  $error ?>
         </div>
     <?php endif; ?>
-    
+
     <div class="import-container">
         <div class="import-card">
             <div class="import-header">
                 <i class="fas fa-file-excel"></i>
                 <h2>آپلود فایل Excel</h2>
             </div>
-            
+
             <div class="import-info">
                 <h3>راهنمای استفاده:</h3>
                 <ol>
@@ -171,18 +171,18 @@ include "inc/header.php";
                     <li>ردیف اول باید شامل عنوان ستون‌ها باشد</li>
                     <li>فایل نمونه را دانلود و مطابق آن پر کنید</li>
                 </ol>
-                
+
                 <a href="download_template.php" class="btn btn-secondary">
                     <i class="fas fa-download"></i>
                     دانلود فایل نمونه
                 </a>
             </div>
-            
+
             <form method="POST" enctype="multipart/form-data" class="import-form">
                 <div class="file-upload-wrapper">
-                    <input type="file" 
-                           name="excel_file" 
-                           id="excel_file" 
+                    <input type="file"
+                           name="excel_file"
+                           id="excel_file"
                            accept=".xlsx,.xls,.csv"
                            required>
                     <label for="excel_file" class="file-upload-label">
@@ -191,7 +191,7 @@ include "inc/header.php";
                         <small>فرمت‌های مجاز: XLSX, XLS, CSV</small>
                     </label>
                 </div>
-                
+
                 <button type="submit" name="import_books" class="btn btn-primary">
                     <i class="fas fa-file-import"></i>
                     وارد کردن کتاب‌ها

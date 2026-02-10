@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/includes/security.php';
+
 // reserve.php
 if (!$user_logged_in) {
     header('Location: login.php');
@@ -52,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_reservation']))
     } else {
         $duration_days = (int)$_POST['duration_days'];
         $notes = trim($_POST['notes'] ?? '');
-        
+
         // اعتبارسنجی مدت امانت
         if ($duration_days < 1 || $duration_days > 30) {
             $error = 'مدت امانت باید بین 1 تا 30 روز باشد';
@@ -63,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_reservation']))
                 'duration_days' => $duration_days,
                 'notes' => $notes
             ]);
-            
+
             if ($result['success']) {
                 $_SESSION['success'] = 'رزرو شما با موفقیت ثبت شد. کد رزرو: ' . $result['reservation_id'];
                 header("Location: my-reservations.php");
@@ -82,8 +84,8 @@ if (!isset($_SESSION['csrf_token'])) {
 
 // دریافت تنظیمات سیستم
 $settings_query = $conn->prepare("
-    SELECT setting_key, setting_value 
-    FROM system_settings 
+    SELECT setting_key, setting_value
+    FROM system_settings
     WHERE setting_key IN ('max_borrow_days', 'daily_penalty_amount')
 ");
 $settings_query->execute();
@@ -97,11 +99,11 @@ $daily_penalty = $settings['daily_penalty_amount'] ?? 5000;
     <div class="reservation-page">
         <!-- Breadcrumb -->
         <nav class="breadcrumb">
-            <a href="<?= siteurl() ?>">خانه</a>
+            <a href="<?php echo  siteurl() ?>">خانه</a>
             <i class="fas fa-chevron-left"></i>
             <a href="books.php">کتاب‌ها</a>
             <i class="fas fa-chevron-left"></i>
-            <a href="book.php?id=<?= $book_id ?>"><?= htmlspecialchars($book_info['book_name']) ?></a>
+            <a href="book.php?id=<?php echo  $book_id ?>"><?php echo  htmlspecialchars($book_info['book_name']) ?></a>
             <i class="fas fa-chevron-left"></i>
             <span>رزرو کتاب</span>
         </nav>
@@ -116,7 +118,7 @@ $daily_penalty = $settings['daily_penalty_amount'] ?? 5000;
         <?php if (isset($error)): ?>
             <div class="alert alert-error">
                 <i class="fas fa-exclamation-triangle"></i>
-                <?= htmlspecialchars($error) ?>
+                <?php echo  htmlspecialchars($error) ?>
             </div>
         <?php endif; ?>
 
@@ -124,23 +126,23 @@ $daily_penalty = $settings['daily_penalty_amount'] ?? 5000;
             <!-- اطلاعات کتاب -->
             <div class="book-summary">
                 <div class="book-summary-image">
-                    <img src="<?= IMG_PATH . $book_info['image'] ?>" 
-                         alt="<?= htmlspecialchars($book_info['book_name']) ?>"
+                    <img src="<?php echo  IMG_PATH . $book_info['image'] ?>"
+                         alt="<?php echo  htmlspecialchars($book_info['book_name']) ?>"
                          onerror="this.src='assets/img/no-image.jpg'">
                 </div>
                 <div class="book-summary-info">
-                    <h3><?= htmlspecialchars($book_info['book_name']) ?></h3>
+                    <h3><?php echo  htmlspecialchars($book_info['book_name']) ?></h3>
                     <p class="author">
                         <i class="fas fa-user"></i>
-                        <?= htmlspecialchars($book_info['author']) ?>
+                        <?php echo  htmlspecialchars($book_info['author']) ?>
                     </p>
                     <p class="category">
                         <i class="fas fa-tag"></i>
-                        <?= htmlspecialchars($book_info['category_name']) ?>
+                        <?php echo  htmlspecialchars($book_info['category_name']) ?>
                     </p>
                     <p class="availability">
                         <i class="fas fa-check-circle"></i>
-                        <?= $available_count ?> نسخه موجود
+                        <?php echo  $available_count ?> نسخه موجود
                     </p>
                 </div>
             </div>
@@ -151,10 +153,10 @@ $daily_penalty = $settings['daily_penalty_amount'] ?? 5000;
                     <i class="fas fa-calendar-alt"></i>
                     اطلاعات رزرو
                 </h3>
-                
+
                 <form method="POST" action="">
-                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                    
+                    <input type="hidden" name="csrf_token" value="<?php echo  $_SESSION['csrf_token'] ?>">
+
                     <div class="form-group">
                         <label for="duration_days">
                             <i class="fas fa-clock"></i>
@@ -163,8 +165,8 @@ $daily_penalty = $settings['daily_penalty_amount'] ?? 5000;
                         <select name="duration_days" id="duration_days" class="form-control" required>
                             <option value="">انتخاب کنید</option>
                             <?php for ($i = 1; $i <= $max_days; $i++): ?>
-                                <option value="<?= $i ?>" <?= $i == 14 ? 'selected' : '' ?>>
-                                    <?= $i ?> روز
+                                <option value="<?php echo  $i ?>" <?php echo  $i == 14 ? 'selected' : '' ?>>
+                                    <?php echo  $i ?> روز
                                     <?php if ($i == 7): ?>
                                         (1 هفته)
                                     <?php elseif ($i == 14): ?>
@@ -176,19 +178,19 @@ $daily_penalty = $settings['daily_penalty_amount'] ?? 5000;
                             <?php endfor; ?>
                         </select>
                         <small class="form-help">
-                            حداکثر مدت امانت <?= $max_days ?> روز می‌باشد
+                            حداکثر مدت امانت <?php echo  $max_days ?> روز می‌باشد
                         </small>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="notes">
                             <i class="fas fa-sticky-note"></i>
                             یادداشت (اختیاری):
                         </label>
-                        <textarea name="notes" id="notes" class="form-control" rows="3" 
+                        <textarea name="notes" id="notes" class="form-control" rows="3"
                                   placeholder="یادداشت یا توضیحات اضافی در مورد این رزرو..."></textarea>
                     </div>
-                    
+
                     <!-- خلاصه رزرو -->
                     <div class="reservation-summary">
                         <h4>
@@ -197,7 +199,7 @@ $daily_penalty = $settings['daily_penalty_amount'] ?? 5000;
                         </h4>
                         <div class="summary-item">
                             <span>تاریخ رزرو:</span>
-                            <span><?= jdate('Y/m/d') ?></span>
+                            <span><?php echo  jdate('Y/m/d') ?></span>
                         </div>
                         <div class="summary-item">
                             <span>تاریخ بازگشت:</span>
@@ -205,14 +207,14 @@ $daily_penalty = $settings['daily_penalty_amount'] ?? 5000;
                         </div>
                         <div class="summary-item">
                             <span>جریمه روزانه تأخیر:</span>
-                            <span><?= number_format($daily_penalty) ?> تومان</span>
+                            <span><?php echo  number_format($daily_penalty) ?> تومان</span>
                         </div>
                         <div class="summary-item important">
                             <span>نکته مهم:</span>
-                            <span>در صورت عدم بازگردانی کتاب در موعد مقرر، روزانه <?= number_format($daily_penalty) ?> تومان جریمه محاسبه خواهد شد</span>
+                            <span>در صورت عدم بازگردانی کتاب در موعد مقرر، روزانه <?php echo  number_format($daily_penalty) ?> تومان جریمه محاسبه خواهد شد</span>
                         </div>
                     </div>
-                    
+
                     <!-- قوانین -->
                     <div class="reservation-rules">
                         <h4>
@@ -220,20 +222,20 @@ $daily_penalty = $settings['daily_penalty_amount'] ?? 5000;
                             قوانین امانت
                         </h4>
                         <ul>
-                            <li>هر عضو حداکثر می‌تواند <?= $member_info['max_active'] ?> کتاب به صورت همزمان امانت بگیرد</li>
-                            <li>امکان تمدید امانت تا <?= $settings['max_extensions'] ?? 2 ?> بار وجود دارد</li>
+                            <li>هر عضو حداکثر می‌تواند <?php echo  $member_info['max_active'] ?> کتاب به صورت همزمان امانت بگیرد</li>
+                            <li>امکان تمدید امانت تا <?php echo  $settings['max_extensions'] ?? 2 ?> بار وجود دارد</li>
                             <li>در صورت وجود جریمه پرداخت نشده، امکان امانت جدید وجود ندارد</li>
                             <li>کتاب‌ها باید در وضعیت سالم بازگردانده شوند</li>
                             <li>در صورت آسیب یا گم کردن کتاب، هزینه جایگزینی محاسبه می‌شود</li>
                         </ul>
                     </div>
-                    
+
                     <div class="form-actions">
                         <button type="submit" name="submit_reservation" class="btn btn-primary btn-large">
                             <i class="fas fa-check"></i>
                             تأیید و ثبت رزرو
                         </button>
-                        <a href="book.php?id=<?= $book_id ?>" class="btn btn-outline">
+                        <a href="book.php?id=<?php echo  $book_id ?>" class="btn btn-outline">
                             <i class="fas fa-times"></i>
                             انصراف
                         </a>
@@ -253,7 +255,7 @@ $(document).ready(function() {
             const today = new Date();
             const returnDate = new Date(today);
             returnDate.setDate(today.getDate() + days);
-            
+
             // تبدیل به تاریخ شمسی (فرض می‌کنیم تابع jDate در دسترس است)
             const jalaliDate = toJalali(returnDate);
             $('#return_date').text(jalaliDate);
@@ -261,7 +263,7 @@ $(document).ready(function() {
             $('#return_date').text('-');
         }
     });
-    
+
     // تریگر کردن تغییر برای مقدار پیش‌فرض
     $('#duration_days').trigger('change');
 });

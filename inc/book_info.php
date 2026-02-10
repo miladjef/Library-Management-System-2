@@ -1,13 +1,13 @@
 <?php if (isset($_GET['bid']) && get_book_info($_GET['bid'])) { ?>
     <div class="book-info">
-        <img alt="کتاب برنامه نویسی وب" src="assets/img/books/<?= $book['image'] ?>">
+        <img alt="کتاب برنامه نویسی وب" src="assets/img/books/<?php echo  $book['image'] ?>">
         <div class="info">
-            <div class="book-title"><?= $book['book_name'] ?></div>
-            <div class="book-category mr-1rem">دسته بندی کتاب : <?= get_category_name($book['category_id']) ?></div>
-            <div class="author mr-1rem">نویسنده : <?= $book['author'] ?></div>
-            <div class="publish-year mr-1rem">سال چاپ : <?= $book['publish_year'] ?></div>
-            <div class="publisher mr-1rem"> ناشر : <?= $book['publisher'] ?></div>
-            <div class="isbn mr-1rem">شناسه کتاب : <?= $book['bid'] ?></div>
+            <div class="book-title"><?php echo  $book['book_name'] ?></div>
+            <div class="book-category mr-1rem">دسته بندی کتاب : <?php echo  get_category_name($book['category_id']) ?></div>
+            <div class="author mr-1rem">نویسنده : <?php echo  $book['author'] ?></div>
+            <div class="publish-year mr-1rem">سال چاپ : <?php echo  $book['publish_year'] ?></div>
+            <div class="publisher mr-1rem"> ناشر : <?php echo  $book['publisher'] ?></div>
+            <div class="isbn mr-1rem">شناسه کتاب : <?php echo  $book['bid'] ?></div>
             <div class="info-buttons">
                 <a class="book-count"> موجودی کتابخانه : <?php if ($book['count'] > 0) {
                         echo $book['count'] . ' عدد';
@@ -66,7 +66,7 @@
     </div>
     <div class="book-description">
         <h1>خلاصه کتاب:</h1>
-        <p><?= $book['description'] ?> </p>
+        <p><?php echo  $book['description'] ?> </p>
     </div>
 <?php } else {
     header('Location: index.php');

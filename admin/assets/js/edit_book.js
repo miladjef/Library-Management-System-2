@@ -1,11 +1,11 @@
 // مدیریت فرم ویرایش کتاب
 
 document.addEventListener('DOMContentLoaded', function() {
-    
+
     const imageInput = document.getElementById('book_image');
     const imagePreview = document.getElementById('imagePreview');
     const removeImageCheckbox = document.querySelector('input[name="remove_image"]');
-    
+
     // پیش‌نمایش تصویر جدید
     if (imageInput) {
         imageInput.addEventListener('change', function(e) {
@@ -17,14 +17,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     imageInput.value = '';
                     return;
                 }
-                
+
                 // بررسی فرمت
                 if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
                     alert('فقط فرمت‌های JPG و PNG مجاز است');
                     imageInput.value = '';
                     return;
                 }
-                
+
                 // نمایش پیش‌نمایش
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     `;
                 };
                 reader.readAsDataURL(file);
-                
+
                 // غیرفعال کردن چک‌باکس حذف تصویر
                 if (removeImageCheckbox) {
                     removeImageCheckbox.checked = false;
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     // مدیریت چک‌باکس حذف تصویر
     if (removeImageCheckbox) {
         removeImageCheckbox.addEventListener('change', function() {
@@ -57,13 +57,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     // اعتبارسنجی فرم
     const form = document.getElementById('editBookForm');
     if (form) {
         form.addEventListener('submit', function(e) {
             const isbn = document.getElementById('isbn').value.trim();
-            
+
             if (!/^\d{10}$|^\d{13}$/.test(isbn)) {
                 e.preventDefault();
                 alert('فرمت ISBN نامعتبر است');
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function clearNewImage() {
     document.getElementById('book_image').value = '';
     document.getElementById('imagePreview').innerHTML = '';
-    
+
     const removeImageCheckbox = document.querySelector('input[name="remove_image"]');
     if (removeImageCheckbox) {
         removeImageCheckbox.disabled = false;

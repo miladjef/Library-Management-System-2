@@ -34,10 +34,10 @@ if (is_logged_in()) {
                 </tr>
                 <?php foreach ($tickets as $ticket) { ?>
                     <tr>
-                        <td><?= $ticket['ticket_id'] ?></td>
-                        <td><?= $ticket['ticket_title'] ?></td>
-                        <td><?= $ticket['ticket_description'] ?></td>
-                        <td style="text-align: center"><a href="show_ticket.php?id=<?= $ticket['ticket_id'] ?>"><img
+                        <td><?php echo  $ticket['ticket_id'] ?></td>
+                        <td><?php echo  $ticket['ticket_title'] ?></td>
+                        <td><?php echo  $ticket['ticket_description'] ?></td>
+                        <td style="text-align: center"><a href="show_ticket.php?id=<?php echo  $ticket['ticket_id'] ?>"><img
                                     class="open-ticket"
                                     src="assets/img/open_ticket.svg"
                                     alt="باز کردن تیکت"></a></td>

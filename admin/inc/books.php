@@ -45,21 +45,21 @@
             <?php get_books();
             foreach ($books as $book) { ?>
                 <tr>
-                    <td><img width="100px" src="<?= IMG_PATH . $book['image'] ?>" alt="<?= $book['book_name'] ?>"></td>
-                    <td><?= $book['bid'] ?></td>
-                    <td><a href="<?=siteurl()?>/book.php?bid=<?= $book['bid'] ?>" target="_blank"><?= $book['book_name'] ?></a></td>
-                    <td><a href="<?=siteurl()?>/category.php?cat_id=<?=$book['category_id']?>" target="_blank"> <?= get_category_name($book['category_id']) ?></a></td>
-                    <td><?= $book['author'] ?></td>
-                    <td><?= $book['publish_year'] ?></td>
-                    <td><?= $book['count'] ?> عدد</td>
+                    <td><img width="100px" src="<?php echo  IMG_PATH . $book['image'] ?>" alt="<?php echo  $book['book_name'] ?>"></td>
+                    <td><?php echo  $book['bid'] ?></td>
+                    <td><a href="<?php echo siteurl()?>/book.php?bid=<?php echo  $book['bid'] ?>" target="_blank"><?php echo  $book['book_name'] ?></a></td>
+                    <td><a href="<?php echo siteurl()?>/category.php?cat_id=<?php echo $book['category_id']?>" target="_blank"> <?php echo  get_category_name($book['category_id']) ?></a></td>
+                    <td><?php echo  $book['author'] ?></td>
+                    <td><?php echo  $book['publish_year'] ?></td>
+                    <td><?php echo  $book['count'] ?> عدد</td>
                     <td>
                         <form action="edit_book.php" method="POST">
-                            <input type="hidden" value="<?= $book['bid'] ?>" name="bid">
+                            <input type="hidden" value="<?php echo  $book['bid'] ?>" name="bid">
                             <button class="edit_delete_btn"><img src="assets/img/edit.svg" alt="ویرایش"></button>
                         </form>
 
                         <form action="" method="POST" id="delete_book_form" onsubmit="return confirm(`از حذف این کتاب اطمینان دارید؟`)">
-                            <input type="hidden" value="<?= $book['bid'] ?>" name="bid">
+                            <input type="hidden" value="<?php echo  $book['bid'] ?>" name="bid">
                             <button class="edit_delete_btn" name="delete"><img src="assets/img/delete.svg" alt="حذف">
                             </button>
                         </form>

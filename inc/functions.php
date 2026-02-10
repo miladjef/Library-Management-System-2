@@ -1,4 +1,7 @@
+// NOTE: Consider converting direct mysqli_query calls to prepared statements to prevent SQL injection.
 <?php
+require_once __DIR__ . '/includes/security.php';
+
 // JUST EDIT THIS PART
 $host = 'localhost';
 $user = 'root';

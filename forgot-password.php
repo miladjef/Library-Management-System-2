@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/includes/security.php';
+
 // forgot-password.php
 require_once 'inc/config.php';
 require_once 'classes/Auth.php';
@@ -11,12 +13,12 @@ $title = 'بازیابی رمز عبور';
 // پردازش درخواست
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_request'])) {
     $email = trim($_POST['email']);
-    
+
     if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'لطفا ایمیل معتبر وارد کنید';
     } else {
         $result = $auth->requestPasswordReset($email);
-        
+
         if ($result['success']) {
             $success = $result['message'];
         } else {
@@ -42,14 +44,14 @@ include "inc/header.php";
             <?php if (isset($success)): ?>
                 <div class="alert alert-success">
                     <i class="fas fa-check-circle"></i>
-                    <?= htmlspecialchars($success) ?>
+                    <?php echo  htmlspecialchars($success) ?>
                 </div>
             <?php endif; ?>
 
             <?php if (isset($error)): ?>
                 <div class="alert alert-error">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <?= htmlspecialchars($error) ?>
+                    <?php echo  htmlspecialchars($error) ?>
                 </div>
             <?php endif; ?>
 
@@ -59,10 +61,10 @@ include "inc/header.php";
                         <i class="fas fa-envelope"></i>
                         ایمیل
                     </label>
-                    <input type="email" 
-                           name="email" 
-                           id="email" 
-                           class="form-control" 
+                    <input type="email"
+                           name="email"
+                           id="email"
+                           class="form-control"
                            placeholder="ایمیل خود را وارد کنید"
                            required>
                 </div>

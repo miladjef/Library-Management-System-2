@@ -416,11 +416,11 @@
     .auth-container {
         grid-template-columns: 1fr;
     }
-    
+
     .auth-visual {
         display: none;
     }
-    
+
     .form-row {
         grid-template-columns: 1fr;
     }
@@ -430,15 +430,15 @@
     .auth-page {
         padding: 1rem;
     }
-    
+
     .auth-card {
         padding: 2rem 1.5rem;
     }
-    
+
     .auth-title {
         font-size: 1.5rem;
     }
-    
+
     .stats-list {
         grid-template-columns: 1fr;
     }

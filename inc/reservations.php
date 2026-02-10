@@ -12,13 +12,13 @@
         <?php get_reserved_books($_SESSION['userid']);
         foreach ($reservations as $reservation) { ?>
             <tr>
-                <td><?= $reservation['rid'] ?></td>
-                <td><img src='assets/img/books/<?= book_img($reservation['book_id']) ?>' width="100px"></td>
+                <td><?php echo  $reservation['rid'] ?></td>
+                <td><img src='assets/img/books/<?php echo  book_img($reservation['book_id']) ?>' width="100px"></td>
 
                 <td>
-                    <a class="book-title-reservation" href="book.php?bid=<?= $reservation['book_id'] ?>"><?= book_name($reservation['book_id']) ?></a>
+                    <a class="book-title-reservation" href="book.php?bid=<?php echo  $reservation['book_id'] ?>"><?php echo  book_name($reservation['book_id']) ?></a>
                 </td>
-                <td><?= $reservation['duration'] ?> روز</td>
+                <td><?php echo  $reservation['duration'] ?> روز</td>
                 <?php
                 $status = $reservation['status'];
                 if ($status == 1) { ?>
@@ -26,7 +26,7 @@
                 <?php } elseif ($status == 2) {
                     return_date();
                     if ($return_date > 0) { ?>
-                        <td><h4 class="verified">تایید شده - موعد تحویل : <?= $return_date ?> روز دیگر</h4></td>
+                        <td><h4 class="verified">تایید شده - موعد تحویل : <?php echo  $return_date ?> روز دیگر</h4></td>
                     <?php } elseif ($return_date < 0) {
                         $passed_days = abs($return_date);
                         $fine_value = get_option("fine");
@@ -35,9 +35,9 @@
                         update_fine($reservation['rid'], $fine);
                         ?>
                         <td><h4 class="not-returned">
-                                از موعد تحویل کتاب شما <?= $passed_days ?> روز است که میگذرد.
+                                از موعد تحویل کتاب شما <?php echo  $passed_days ?> روز است که میگذرد.
                                 جریمه کتاب تاکنون
-                                : <?= $fine_formatted ?> تومان </h4></td>
+                                : <?php echo  $fine_formatted ?> تومان </h4></td>
                     <?php } elseif ($return_date == 0) { ?>
                         <td><h4 class="verified">تایید شده - موعد تحویل : تا پایان امروز</h4></td>
                     <?php } ?>
