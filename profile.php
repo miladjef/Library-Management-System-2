@@ -21,6 +21,12 @@ if (!$user_info) {
     exit;
 }
 
+// بررسی مالکیت پروفایل - جلوگیری از IDOR
+if ($user_info['id'] != $member_id) {
+    header('Location: login.php');
+    exit;
+}
+
 $title = 'پروفایل من';
 include "inc/header.php";
 
@@ -37,13 +43,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
             'address' => trim($_POST['address'])
         ];
 
-        $result = $member->update($member_id, $data);
-
-        if ($result['success']) {
-            $success = 'اطلاعات با موفقیت به‌روزرسانی شد';
-            $user_info = $member->getById($member_id); // بارگذاری مجدد اطلاعات
+        // اعتبارسنجی ایمیل
+        if (!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            $error = 'فرمت ایمیل نامعتبر است';
         } else {
-            $error = $result['message'];
+            $result = $member->update($member_id, $data);
+
+            if ($result['success']) {
+                $success = 'اطلاعات با موفقیت به‌روزرسانی شد';
+                $user_info = $member->getById($member_id); // بارگذاری مجدد اطلاعات
+            } else {
+                $error = $result['message'];
+            }
         }
     }
 }
@@ -61,6 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
             $password_error = 'رمز عبور جدید و تکرار آن مطابقت ندارند';
         } elseif (strlen($new_password) < 6) {
             $password_error = 'رمز عبور باید حداقل 6 کاراکتر باشد';
+        } elseif (preg_match('/^\d+$/', $new_password)) {
+            $password_error = 'رمز عبور نباید فقط عدد باشد';
         } else {
             // بررسی رمز عبور فعلی
             if (!password_verify($current_password, $user_info['password'])) {
@@ -84,7 +97,7 @@ if (!isset($_SESSION['csrf_token'])) {
 }
 
 // دریافت آمار کاربر
-$stats_query = $conn->prepare("
+$stats_query = $db->getConnection()->prepare("
     SELECT
         COUNT(*) as total_reservations,
         COUNT(CASE WHEN status = 'active' THEN 1 END) as active_reservations,
@@ -97,7 +110,7 @@ $stats_query->execute([$member_id]);
 $user_stats = $stats_query->fetch(PDO::FETCH_ASSOC);
 
 // محاسبه جریمه‌های پرداخت نشده
-$penalty_query = $conn->prepare("
+$penalty_query = $db->getConnection()->prepare("
     SELECT COALESCE(SUM(amount), 0) as total_penalty
     FROM penalties
     WHERE mid = ? AND status = 'unpaid'
@@ -106,7 +119,7 @@ $penalty_query->execute([$member_id]);
 $total_penalty = $penalty_query->fetchColumn();
 
 // دریافت آخرین فعالیت‌ها
-$activity_query = $conn->prepare("
+$activity_query = $db->getConnection()->prepare("
     SELECT * FROM member_activity_log
     WHERE mid = ?
     ORDER BY created_at DESC
@@ -124,8 +137,8 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                 <i class="fas fa-user-circle"></i>
             </div>
             <div class="profile-info">
-                <h1><?php echo  htmlspecialchars($user_info['name'] . ' ' . $user_info['surname']) ?></h1>
-                <p class="username">@<?php echo  htmlspecialchars($user_info['username']) ?></p>
+                <h1><?php echo htmlspecialchars($user_info['name'] . ' ' . $user_info['surname'], ENT_QUOTES, 'UTF-8') ?></h1>
+                <p class="username">@<?php echo htmlspecialchars($user_info['username'], ENT_QUOTES, 'UTF-8') ?></p>
                 <div class="member-badges">
                     <?php if ($user_info['status'] == 'active'): ?>
                         <span class="badge badge-success">
@@ -141,7 +154,7 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
 
                     <span class="badge badge-info">
                         <i class="fas fa-calendar"></i>
-                        عضو از: <?php echo  jdate('Y/m/d', strtotime($user_info['created_at'])) ?>
+                        عضو از: <?php echo htmlspecialchars(jdate('Y/m/d', strtotime($user_info['created_at'])), ENT_QUOTES, 'UTF-8') ?>
                     </span>
                 </div>
             </div>
@@ -154,7 +167,7 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                     <i class="fas fa-book"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number"><?php echo  $user_stats['total_reservations'] ?></div>
+                    <div class="stat-number"><?php echo htmlspecialchars($user_stats['total_reservations'], ENT_QUOTES, 'UTF-8') ?></div>
                     <div class="stat-label">کل امانت‌ها</div>
                 </div>
             </div>
@@ -164,7 +177,7 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                     <i class="fas fa-clock"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number"><?php echo  $user_stats['active_reservations'] ?></div>
+                    <div class="stat-number"><?php echo htmlspecialchars($user_stats['active_reservations'], ENT_QUOTES, 'UTF-8') ?></div>
                     <div class="stat-label">امانت فعال</div>
                 </div>
             </div>
@@ -174,7 +187,7 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                     <i class="fas fa-check"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number"><?php echo  $user_stats['returned_reservations'] ?></div>
+                    <div class="stat-number"><?php echo htmlspecialchars($user_stats['returned_reservations'], ENT_QUOTES, 'UTF-8') ?></div>
                     <div class="stat-label">بازگشت داده شده</div>
                 </div>
             </div>
@@ -184,7 +197,7 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number"><?php echo  number_format($total_penalty) ?></div>
+                    <div class="stat-number"><?php echo htmlspecialchars(number_format($total_penalty), ENT_QUOTES, 'UTF-8') ?></div>
                     <div class="stat-label">جریمه (تومان)</div>
                 </div>
             </div>
@@ -212,19 +225,19 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                 <?php if (isset($success)): ?>
                     <div class="alert alert-success">
                         <i class="fas fa-check-circle"></i>
-                        <?php echo  htmlspecialchars($success) ?>
+                        <?php echo htmlspecialchars($success, ENT_QUOTES, 'UTF-8') ?>
                     </div>
                 <?php endif; ?>
 
                 <?php if (isset($error)): ?>
                     <div class="alert alert-error">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <?php echo  htmlspecialchars($error) ?>
+                        <?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
                     </div>
                 <?php endif; ?>
 
                 <form method="POST" action="" class="profile-form">
-                    <input type="hidden" name="csrf_token" value="<?php echo  $_SESSION['csrf_token'] ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
 
                     <div class="form-row">
                         <div class="form-group">
@@ -233,7 +246,8 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                                 نام:
                             </label>
                             <input type="text" name="name" id="name" class="form-control"
-                                   value="<?php echo  htmlspecialchars($user_info['name']) ?>" required>
+                                   value="<?php echo htmlspecialchars($user_info['name'] ?? '', ENT_QUOTES, 'UTF-8') ?>" required
+                                   pattern="[\u0600-\u06FF\s]{2,50}" title="فقط حروف فارسی مجاز است (۲ تا ۵۰ کاراکتر)">
                         </div>
 
                         <div class="form-group">
@@ -242,7 +256,8 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                                 نام خانوادگی:
                             </label>
                             <input type="text" name="surname" id="surname" class="form-control"
-                                   value="<?php echo  htmlspecialchars($user_info['surname']) ?>" required>
+                                   value="<?php echo htmlspecialchars($user_info['surname'] ?? '', ENT_QUOTES, 'UTF-8') ?>" required
+                                   pattern="[\u0600-\u06FF\s]{2,50}" title="فقط حروف فارسی مجاز است (۲ تا ۵۰ کاراکتر)">
                         </div>
                     </div>
 
@@ -252,7 +267,7 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                             نام کاربری:
                         </label>
                         <input type="text" name="username" id="username" class="form-control"
-                               value="<?php echo  htmlspecialchars($user_info['username']) ?>" disabled>
+                               value="<?php echo htmlspecialchars($user_info['username'] ?? '', ENT_QUOTES, 'UTF-8') ?>" disabled>
                         <small class="form-help">نام کاربری قابل تغییر نیست</small>
                     </div>
 
@@ -262,7 +277,8 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                             ایمیل:
                         </label>
                         <input type="email" name="email" id="email" class="form-control"
-                               value="<?php echo  htmlspecialchars($user_info['email'] ?? '') ?>">
+                               value="<?php echo htmlspecialchars($user_info['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
                     </div>
 
                     <div class="form-group">
@@ -271,8 +287,8 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                             شماره تماس:
                         </label>
                         <input type="tel" name="phone" id="phone" class="form-control"
-                               value="<?php echo  htmlspecialchars($user_info['phone'] ?? '') ?>"
-                               placeholder="09123456789">
+                               value="<?php echo htmlspecialchars($user_info['phone'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                               placeholder="09123456789" pattern="09[0-9]{9}">
                     </div>
 
                     <div class="form-group">
@@ -280,7 +296,7 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                             <i class="fas fa-map-marker-alt"></i>
                             آدرس:
                         </label>
-                        <textarea name="address" id="address" class="form-control" rows="3"><?php echo  htmlspecialchars($user_info['address'] ?? '') ?></textarea>
+                        <textarea name="address" id="address" class="form-control" rows="3" maxlength="500"><?php echo htmlspecialchars($user_info['address'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
 
                     <div class="form-actions">
@@ -297,14 +313,14 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                 <?php if (isset($password_success)): ?>
                     <div class="alert alert-success">
                         <i class="fas fa-check-circle"></i>
-                        <?php echo  htmlspecialchars($password_success) ?>
+                        <?php echo htmlspecialchars($password_success, ENT_QUOTES, 'UTF-8') ?>
                     </div>
                 <?php endif; ?>
 
                 <?php if (isset($password_error)): ?>
                     <div class="alert alert-error">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <?php echo  htmlspecialchars($password_error) ?>
+                        <?php echo htmlspecialchars($password_error, ENT_QUOTES, 'UTF-8') ?>
                     </div>
                 <?php endif; ?>
 
@@ -315,7 +331,7 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                     </h3>
 
                     <form method="POST" action="" class="password-form">
-                        <input type="hidden" name="csrf_token" value="<?php echo  $_SESSION['csrf_token'] ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
 
                         <div class="form-group">
                             <label for="current_password">
@@ -332,8 +348,9 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                                 رمز عبور جدید:
                             </label>
                             <input type="password" name="new_password" id="new_password"
-                                   class="form-control" minlength="6" required>
-                            <small class="form-help">حداقل 6 کاراکتر</small>
+                                   class="form-control" minlength="6" required
+                                   pattern="^(?=.*[a-zA-Z])(?=.*\d).{6,}$" title="رمز عبور باید حداقل ۶ کاراکتر و شامل حرف و عدد باشد">
+                            <small class="form-help">حداقل 6 کاراکتر و شامل حروف و اعداد</small>
                         </div>
 
                         <div class="form-group">
@@ -396,15 +413,15 @@ $recent_activities = $activity_query->fetchAll(PDO::FETCH_ASSOC);
                                     ];
                                     $icon = $icon_map[$activity['action_type']] ?? 'fa-info-circle';
                                     ?>
-                                    <i class="fas <?php echo  $icon ?>"></i>
+                                    <i class="fas <?php echo htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') ?>"></i>
                                 </div>
                                 <div class="activity-content">
                                     <div class="activity-description">
-                                        <?php echo  htmlspecialchars($activity['description']) ?>
+                                        <?php echo htmlspecialchars($activity['description'], ENT_QUOTES, 'UTF-8') ?>
                                     </div>
                                     <div class="activity-time">
                                         <i class="fas fa-clock"></i>
-                                        <?php echo  jdate('Y/m/d H:i', strtotime($activity['created_at'])) ?>
+                                        <?php echo htmlspecialchars(jdate('Y/m/d H:i', strtotime($activity['created_at'])), ENT_QUOTES, 'UTF-8') ?>
                                     </div>
                                 </div>
                             </div>
@@ -439,6 +456,35 @@ $(document).ready(function() {
         if (newPassword !== confirmPassword) {
             e.preventDefault();
             alert('رمز عبور جدید و تکرار آن مطابقت ندارند');
+            return false;
+        }
+        
+        // اعتبارسنجی قدرت رمز عبور
+        const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{6,}$/;
+        if (!passwordRegex.test(newPassword)) {
+            e.preventDefault();
+            alert('رمز عبور باید حداقل ۶ کاراکتر و شامل حروف و اعداد باشد');
+            return false;
+        }
+    });
+    
+    // اعتبارسنجی فرم پروفایل
+    $('.profile-form').submit(function(e) {
+        const phone = $('#phone').val();
+        const phoneRegex = /^09[0-9]{9}$/;
+        
+        if (phone && !phoneRegex.test(phone)) {
+            e.preventDefault();
+            alert('شماره تلفن همراه باید با 09 شروع شده و 11 رقم باشد');
+            return false;
+        }
+        
+        const email = $('#email').val();
+        const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
+        
+        if (email && !emailRegex.test(email)) {
+            e.preventDefault();
+            alert('فرمت ایمیل نامعتبر است');
             return false;
         }
     });
