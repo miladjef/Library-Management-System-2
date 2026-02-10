@@ -10,48 +10,66 @@ $auth = new Auth($db);
 
 $title = 'تغییر رمز عبور';
 
+// Rate Limiting برای جلوگیری از Brute Force
+$reset_key = 'reset_attempts_' . $_SERVER['REMOTE_ADDR'];
+if (!isset($_SESSION[$reset_key])) {
+    $_SESSION[$reset_key] = ['count' => 0, 'time' => time()];
+}
+
+if (time() - $_SESSION[$reset_key]['time'] > 3600) {
+    $_SESSION[$reset_key] = ['count' => 1, 'time' => time()];
+} else {
+    $_SESSION[$reset_key]['count']++;
+    if ($_SESSION[$reset_key]['count'] > 5) {
+        $rate_limit_exceeded = true;
+        $error_message = "تعداد درخواست‌های شما بیش از حد مجاز است. لطفاً یک ساعت دیگر تلاش کنید.";
+    }
+}
+
 // بررسی وجود توکن
-if (!isset($_GET['token']) || empty($_GET['token'])) {
-    header('Location: login.php');
-    exit;
-}
+if (!isset($rate_limit_exceeded)) {
+    if (!isset($_GET['token']) || empty($_GET['token'])) {
+        header('Location: login.php');
+        exit;
+    }
 
-$token = $_GET['token'];
+    $token = $_GET['token'];
 
-// بررسی اعتبار توکن
-$conn = $db->getConnection();
-$stmt = $conn->prepare("
-    SELECT pr.*, m.email, m.name
-    FROM password_resets pr
-    JOIN members m ON pr.mid = m.mid
-    WHERE pr.token = ? AND pr.expires_at > NOW() AND pr.used = 0
-    LIMIT 1
-");
-$stmt->execute([$token]);
-$reset_data = $stmt->fetch(PDO::FETCH_ASSOC);
+    // بررسی اعتبار توکن
+    $conn = $db->getConnection();
+    $stmt = $conn->prepare("
+        SELECT pr.*, m.email, m.name
+        FROM password_resets pr
+        JOIN members m ON pr.mid = m.mid
+        WHERE pr.token = ? AND pr.expires_at > NOW() AND pr.used = 0
+        LIMIT 1
+    ");
+    $stmt->execute([$token]);
+    $reset_data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$reset_data) {
-    $error_message = 'لینک بازیابی نامعتبر یا منقضی شده است';
-}
+    if (!$reset_data) {
+        $error_message = 'لینک بازیابی نامعتبر یا منقضی شده است';
+    }
 
-// پردازش فرم
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_password'])) {
-    $new_password = $_POST['new_password'];
-    $confirm_password = $_POST['confirm_password'];
+    // پردازش فرم
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_password'])) {
+        $new_password = $_POST['new_password'];
+        $confirm_password = $_POST['confirm_password'];
 
-    if (strlen($new_password) < 6) {
-        $error = 'رمز عبور باید حداقل 6 کاراکتر باشد';
-    } elseif ($new_password !== $confirm_password) {
-        $error = 'رمز عبور و تکرار آن یکسان نیستند';
-    } else {
-        $result = $auth->resetPassword($token, $new_password);
-
-        if ($result['success']) {
-            $_SESSION['success_message'] = 'رمز عبور با موفقیت تغییر یافت. لطفا وارد شوید';
-            header('Location: login.php');
-            exit;
+        if (strlen($new_password) < 6) {
+            $error = 'رمز عبور باید حداقل 6 کاراکتر باشد';
+        } elseif ($new_password !== $confirm_password) {
+            $error = 'رمز عبور و تکرار آن یکسان نیستند';
         } else {
-            $error = $result['message'];
+            $result = $auth->resetPassword($token, $new_password);
+
+            if ($result['success']) {
+                $_SESSION['success_message'] = 'رمز عبور با موفقیت تغییر یافت. لطفا وارد شوید';
+                header('Location: login.php');
+                exit;
+            } else {
+                $error = $result['message'];
+            }
         }
     }
 }
@@ -68,32 +86,41 @@ include "inc/header.php";
                 </div>
                 <h1 class="auth-title">تغییر رمز عبور</h1>
                 <?php if (isset($reset_data)): ?>
-                    <p class="auth-subtitle">سلام <?php echo  htmlspecialchars($reset_data['name']) ?>، رمز عبور جدید خود را وارد کنید</p>
+                    <p class="auth-subtitle">سلام <?php echo htmlspecialchars($reset_data['name'], ENT_QUOTES, 'UTF-8') ?>، رمز عبور جدید خود را وارد کنید</p>
                 <?php endif; ?>
             </div>
 
             <?php if (isset($error_message)): ?>
                 <div class="alert alert-error">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <?php echo  htmlspecialchars($error_message) ?>
+                    <?php echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8') ?>
                 </div>
-                <div class="auth-footer">
-                    <a href="forgot-password.php" class="btn btn-primary btn-block">
-                        <i class="fas fa-redo"></i>
-                        درخواست مجدد
-                    </a>
-                </div>
+                <?php if (!isset($rate_limit_exceeded)): ?>
+                    <div class="auth-footer">
+                        <a href="forgot-password.php" class="btn btn-primary btn-block">
+                            <i class="fas fa-redo"></i>
+                            درخواست مجدد
+                        </a>
+                    </div>
+                <?php else: ?>
+                    <div class="auth-footer">
+                        <a href="login.php">
+                            <i class="fas fa-arrow-right"></i>
+                            بازگشت به صفحه ورود
+                        </a>
+                    </div>
+                <?php endif; ?>
             <?php else: ?>
 
                 <?php if (isset($error)): ?>
                     <div class="alert alert-error">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <?php echo  htmlspecialchars($error) ?>
+                        <?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
                     </div>
                 <?php endif; ?>
 
                 <form method="POST" action="" class="auth-form" id="resetForm">
-                    <input type="hidden" name="token" value="<?php echo  htmlspecialchars($token) ?>">
+                    <input type="hidden" name="token" value="<?php echo htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?>">
 
                     <div class="form-group">
                         <label for="new_password" class="form-label">
