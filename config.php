@@ -1,7 +1,14 @@
 <?php
 /**
  * تنظیمات اصلی پروژه
+ * این فایل باید خارج از دسترسی عمومی (public_html) قرار گیرد
  */
+
+// جلوگیری از دسترسی مستقیم
+if (!defined('BASEPATH')) {
+    header('HTTP/1.0 403 Forbidden');
+    exit('دسترسی مستقیم به این فایل ممنوع است');
+}
 
 // تنظیمات دیتابیس
 define('DB_HOST', 'localhost');
@@ -36,10 +43,18 @@ define('ENABLE_LOGGING', true);
 date_default_timezone_set('Asia/Tehran');
 
 // تنظیمات خطایابی (فقط در محیط توسعه)
-if ($_SERVER['SERVER_NAME'] === 'localhost') {
+if ($_SERVER['SERVER_NAME'] === 'localhost' || $_SERVER['SERVER_NAME'] === '127.0.0.1') {
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
+    define('ENVIRONMENT', 'development');
 } else {
     error_reporting(0);
     ini_set('display_errors', 0);
+    define('ENVIRONMENT', 'production');
+}
+
+// جلوگیری از نمایش اطلاعات حساس در محیط تولید
+if (ENVIRONMENT === 'production') {
+    ini_set('expose_php', 'Off');
+    header_remove('X-Powered-By');
 }
