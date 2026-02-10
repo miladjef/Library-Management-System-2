@@ -43,6 +43,15 @@ if (!$member_info['can_borrow']) {
     exit;
 }
 
+// بررسی رزرو تکراری قبل از پردازش فرم
+$stmt = $db->prepare("SELECT COUNT(*) FROM reservations WHERE mid = ? AND bid = ? AND status IN ('pending', 'active')");
+$stmt->execute([$_SESSION['userid'], $book_id]);
+if ($stmt->fetchColumn() > 0) {
+    $_SESSION['error'] = "شما قبلاً این کتاب را رزرو کرده‌اید";
+    header("Location: book.php?id=$book_id");
+    exit;
+}
+
 $title = 'رزرو کتاب';
 include "inc/header.php";
 
@@ -59,19 +68,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_reservation']))
         if ($duration_days < 1 || $duration_days > 30) {
             $error = 'مدت امانت باید بین 1 تا 30 روز باشد';
         } else {
-            $result = $reservation->create([
-                'mid' => $_SESSION['userid'],
-                'bid' => $book_id,
-                'duration_days' => $duration_days,
-                'notes' => $notes
-            ]);
+            // بررسی مجدد موجودی کتاب قبل از ثبت رزرو
+            $available_count = $book->getAvailableCount($book_id);
+            if ($available_count <= 0) {
+                $error = 'متأسفیم، این کتاب در حال حاضر موجود نیست. ممکن است توسط کاربر دیگری رزرو شده باشد.';
+            } 
+            // بررسی مجدد رزرو تکراری قبل از ثبت
+            else {
+                $stmt = $db->prepare("SELECT COUNT(*) FROM reservations WHERE mid = ? AND bid = ? AND status IN ('pending', 'active')");
+                $stmt->execute([$_SESSION['userid'], $book_id]);
+                if ($stmt->fetchColumn() > 0) {
+                    $error = "شما قبلاً این کتاب را رزرو کرده‌اید";
+                } else {
+                    $result = $reservation->create([
+                        'mid' => $_SESSION['userid'],
+                        'bid' => $book_id,
+                        'duration_days' => $duration_days,
+                        'notes' => $notes
+                    ]);
 
-            if ($result['success']) {
-                $_SESSION['success'] = 'رزرو شما با موفقیت ثبت شد. کد رزرو: ' . $result['reservation_id'];
-                header("Location: my-reservations.php");
-                exit;
-            } else {
-                $error = $result['message'];
+                    if ($result['success']) {
+                        $_SESSION['success'] = 'رزرو شما با موفقیت ثبت شد. کد رزرو: ' . $result['reservation_id'];
+                        header("Location: my-reservations.php");
+                        exit;
+                    } else {
+                        $error = $result['message'];
+                    }
+                }
             }
         }
     }
@@ -83,10 +106,11 @@ if (!isset($_SESSION['csrf_token'])) {
 }
 
 // دریافت تنظیمات سیستم
+$conn = $db->getConnection();
 $settings_query = $conn->prepare("
     SELECT setting_key, setting_value
     FROM system_settings
-    WHERE setting_key IN ('max_borrow_days', 'daily_penalty_amount')
+    WHERE setting_key IN ('max_borrow_days', 'daily_penalty_amount', 'max_extensions')
 ");
 $settings_query->execute();
 $settings = $settings_query->fetchAll(PDO::FETCH_KEY_PAIR);
