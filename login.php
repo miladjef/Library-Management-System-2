@@ -16,41 +16,116 @@ if (isset($_SESSION['userid']) && $_SESSION['userid']) {
 
 $title = 'ورود به سیستم';
 
+// تنظیمات Rate Limiting
+$max_attempts = 5; // حداکثر تعداد تلاش
+$lockout_time = 900; // 15 دقیقه قفل شدن (به ثانیه)
+$ip = $_SERVER['REMOTE_ADDR'];
+$current_time = time();
+
+// بررسی Rate Limiting
+if (!isset($_SESSION['login_attempts'])) {
+    $_SESSION['login_attempts'] = [];
+}
+
+// پاک کردن تلاش‌های قدیمی
+foreach ($_SESSION['login_attempts'] as $key => $attempt) {
+    if ($current_time - $attempt['time'] > $lockout_time) {
+        unset($_SESSION['login_attempts'][$key]);
+    }
+}
+
+// شمارش تلاش‌های فعلی برای این IP
+$attempt_count = 0;
+foreach ($_SESSION['login_attempts'] as $attempt) {
+    if ($attempt['ip'] === $ip) {
+        $attempt_count++;
+    }
+}
+
 // پردازش ورود
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    // بررسی Rate Limiting
+    if ($attempt_count >= $max_attempts) {
+        $error = 'تعداد تلاش‌های شما بیش از حد مجاز است. لطفاً ۱۵ دقیقه دیگر دوباره تلاش کنید.';
+    } elseif (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         $error = 'خطای امنیتی. لطفا دوباره تلاش کنید';
     } else {
         $username = trim($_POST['username']);
         $password = $_POST['password'];
         $remember = isset($_POST['remember']);
 
-        $result = $auth->login($username, $password, $remember);
-
-        if ($result['success']) {
-            // ثبت لاگ ورود
-            $log_data = [
-                'mid' => $result['user_id'],
-                'action_type' => 'login',
-                'description' => 'ورود موفق به سیستم',
-                'ip_address' => $_SERVER['REMOTE_ADDR'],
-                'user_agent' => $_SERVER['HTTP_USER_AGENT']
-            ];
-            $auth->logActivity($log_data);
-
-            // ریدایرکت بر اساس نقش
-            if ($result['role'] == 2) {
-                header('Location: admin/index.php');
-            } else {
-                $redirect = $_GET['redirect'] ?? 'profile.php';
-                header('Location: ' . $redirect);
-            }
-            exit;
+        // اعتبارسنجی اولیه
+        if (empty($username) || empty($password)) {
+            $error = 'لطفا نام کاربری و رمز عبور را وارد کنید';
+        } elseif (strlen($username) > 100 || strlen($password) > 255) {
+            $error = 'مقادیر وارد شده معتبر نیستند';
         } else {
-            $error = $result['message'];
+            $result = $auth->login($username, $password, $remember);
 
-            // ثبت تلاش ناموفق
-            $auth->logFailedLogin($username, $_SERVER['REMOTE_ADDR']);
+            if ($result['success']) {
+                // بازتولید Session ID برای جلوگیری از Session Fixation
+                session_regenerate_id(true);
+                
+                // تنظیم زمان انقضای نشست
+                if ($remember) {
+                    // نشست طولانی مدت: 30 روز
+                    ini_set('session.gc_maxlifetime', 2592000);
+                    session_set_cookie_params(2592000);
+                } else {
+                    // نشست عادی: 1 ساعت
+                    ini_set('session.gc_maxlifetime', 3600);
+                    session_set_cookie_params(3600);
+                }
+
+                // ثبت لاگ ورود
+                $log_data = [
+                    'mid' => $result['user_id'],
+                    'action_type' => 'login',
+                    'description' => 'ورود موفق به سیستم',
+                    'ip_address' => $ip,
+                    'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'
+                ];
+                $auth->logActivity($log_data);
+
+                // پاک کردن تلاش‌های ناموفق این IP
+                foreach ($_SESSION['login_attempts'] as $key => $attempt) {
+                    if ($attempt['ip'] === $ip) {
+                        unset($_SESSION['login_attempts'][$key]);
+                    }
+                }
+
+                // تولید CSRF token جدید
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
+                // ریدایرکت بر اساس نقش
+                if ($result['role'] == 2) {
+                    header('Location: admin/index.php');
+                } else {
+                    $redirect = isset($_GET['redirect']) ? filter_var($_GET['redirect'], FILTER_SANITIZE_URL) : 'profile.php';
+                    // بررسی مجوز برای جلوگیری از Open Redirect
+                    $allowed_redirects = ['profile.php', 'dashboard.php', 'index.php'];
+                    if (!in_array($redirect, $allowed_redirects)) {
+                        $redirect = 'profile.php';
+                    }
+                    header('Location: ' . $redirect);
+                }
+                exit;
+            } else {
+                $error = $result['message'];
+
+                // ثبت تلاش ناموفق
+                $auth->logFailedLogin($username, $ip);
+                
+                // افزودن به لیست تلاش‌های ناموفق
+                $_SESSION['login_attempts'][] = [
+                    'ip' => $ip,
+                    'time' => $current_time,
+                    'username' => $username
+                ];
+                
+                // تاخیر برای جلوگیری از Timing Attack
+                usleep(rand(100000, 300000)); // تاخیر 100-300 میلی‌ثانیه
+            }
         }
     }
 }
@@ -59,6 +134,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+
+// تنظیم هدرهای امنیتی
+header('X-Frame-Options: DENY');
+header('X-Content-Type-Options: nosniff');
 
 include "inc/header.php";
 ?>
@@ -78,21 +157,32 @@ include "inc/header.php";
             <?php if (isset($error)): ?>
                 <div class="alert alert-error">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <?php echo  htmlspecialchars($error) ?>
+                    <?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
                 </div>
             <?php endif; ?>
 
             <?php if (isset($_SESSION['success_message'])): ?>
                 <div class="alert alert-success">
                     <i class="fas fa-check-circle"></i>
-                    <?php echo  htmlspecialchars($_SESSION['success_message']) ?>
+                    <?php echo htmlspecialchars($_SESSION['success_message'], ENT_QUOTES, 'UTF-8') ?>
                 </div>
                 <?php unset($_SESSION['success_message']); ?>
             <?php endif; ?>
 
+            <!-- نمایش وضعیت Rate Limiting -->
+            <?php if ($attempt_count > 0): ?>
+                <div class="alert alert-warning">
+                    <i class="fas fa-shield-alt"></i>
+                    تلاش‌های ناموفق: <?php echo $attempt_count ?> از <?php echo $max_attempts ?>
+                    <?php if ($attempt_count >= $max_attempts): ?>
+                        <br><small>دسترسی تا ۱۵ دقیقه دیگر مسدود است</small>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+
             <!-- فرم ورود -->
-            <form method="POST" action="" class="auth-form" id="loginForm">
-                <input type="hidden" name="csrf_token" value="<?php echo  $_SESSION['csrf_token'] ?>">
+            <form method="POST" action="" class="auth-form" id="loginForm" autocomplete="on">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                 <div class="form-group">
                     <label for="username" class="form-label">
@@ -104,9 +194,11 @@ include "inc/header.php";
                            id="username"
                            class="form-control"
                            placeholder="نام کاربری یا ایمیل خود را وارد کنید"
-                           value="<?php echo  isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '' ?>"
+                           value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username'], ENT_QUOTES, 'UTF-8') : '' ?>"
                            required
-                           autofocus>
+                           autofocus
+                           maxlength="100"
+                           <?php echo $attempt_count >= $max_attempts ? 'disabled' : '' ?>>
                 </div>
 
                 <div class="form-group">
@@ -120,7 +212,10 @@ include "inc/header.php";
                                id="password"
                                class="form-control"
                                placeholder="رمز عبور خود را وارد کنید"
-                               required>
+                               required
+                               maxlength="255"
+                               autocomplete="current-password"
+                               <?php echo $attempt_count >= $max_attempts ? 'disabled' : '' ?>>
                         <button type="button" class="password-toggle" onclick="togglePassword('password')">
                             <i class="fas fa-eye" id="password-icon"></i>
                         </button>
@@ -129,7 +224,7 @@ include "inc/header.php";
 
                 <div class="form-options">
                     <label class="checkbox-label">
-                        <input type="checkbox" name="remember" value="1">
+                        <input type="checkbox" name="remember" value="1" <?php echo $attempt_count >= $max_attempts ? 'disabled' : '' ?>>
                         <span>مرا به خاطر بسپار</span>
                     </label>
                     <a href="forgot-password.php" class="forgot-link">
@@ -137,9 +232,12 @@ include "inc/header.php";
                     </a>
                 </div>
 
-                <button type="submit" name="login" class="btn btn-primary btn-block">
+                <button type="submit" 
+                        name="login" 
+                        class="btn btn-primary btn-block"
+                        <?php echo $attempt_count >= $max_attempts ? 'disabled' : '' ?>>
                     <i class="fas fa-sign-in-alt"></i>
-                    ورود به سیستم
+                    <?php echo $attempt_count >= $max_attempts ? 'دسترسی موقتاً مسدود است' : 'ورود به سیستم' ?>
                 </button>
             </form>
 
@@ -159,7 +257,7 @@ include "inc/header.php";
 
             <!-- بازگشت به خانه -->
             <div class="auth-back">
-                <a href="<?php echo  siteurl() ?>">
+                <a href="<?php echo siteurl() ?>">
                     <i class="fas fa-arrow-right"></i>
                     بازگشت به صفحه اصلی
                 </a>
@@ -193,6 +291,9 @@ include "inc/header.php";
 </div>
 
 <script>
+// تاخیر برای جلوگیری از تشخیص فرم خالی
+let formSubmitted = false;
+
 // Toggle Password Visibility
 function togglePassword(inputId) {
     const input = document.getElementById(inputId);
@@ -211,6 +312,11 @@ function togglePassword(inputId) {
 
 // Form Validation
 document.getElementById('loginForm').addEventListener('submit', function(e) {
+    if (formSubmitted) {
+        e.preventDefault();
+        return false;
+    }
+    
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value;
 
@@ -218,6 +324,19 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         alert('لطفا تمام فیلدها را پر کنید');
         return false;
+    }
+    
+    // جلوگیری از ارسال چندگانه
+    formSubmitted = true;
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال بررسی...';
+});
+
+// جلوگیری از ارسال فرم با کلید Enter چند بار
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && formSubmitted) {
+        e.preventDefault();
     }
 });
 </script>
